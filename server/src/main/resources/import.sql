@@ -1,0 +1,102 @@
+INSERT INTO tb_category (name) VALUES ('Processadores');   -- ID 1
+INSERT INTO tb_category (name) VALUES ('Placas de Vídeo'); -- ID 2
+INSERT INTO tb_category (name) VALUES ('Placas Mãe');      -- ID 3
+INSERT INTO tb_category (name) VALUES ('Memória RAM');     -- ID 4
+INSERT INTO tb_category (name) VALUES ('Armazenamento');   -- ID 5
+INSERT INTO tb_category (name) VALUES ('Monitores');       -- ID 6
+INSERT INTO tb_category (name) VALUES ('Mouses');          -- ID 7
+INSERT INTO tb_category (name) VALUES ('Teclados');        -- ID 8
+INSERT INTO tb_category (name) VALUES ('Headsets');        -- ID 9
+INSERT INTO tb_category (name) VALUES ('Consoles');        -- ID 10
+-- ID 1: Processadores
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Ryzen 5 5600', 'AMD Ryzen 5 5600, 3.5GHz (4.4GHz Turbo), 6-Cores, AM4', 849.00, 'https://images.kabum.com.br/produtos/fotos/320798/processador-amd-ryzen-5-5600-cache-35mb-3-7ghz-4-4ghz-max-turbo-am4-100-100000927box_1647636743_gg.jpg', 1);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Intel Core i5-12400F', 'Intel Core i5-12400F, 2.5GHz (4.4GHz Turbo), LGA 1700', 920.00, 'https://images.kabum.com.br/produtos/fotos/283718/processador-intel-core-i5-12400f-cache-xmb-xghz-xghz-max-turbo-lga-1700-bx8071512400f_1640094446_gg.jpg', 1);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Ryzen 7 5700X', 'AMD Ryzen 7 5700X, 3.4GHz (4.6GHz Turbo), 8-Cores, Sem Vídeo', 1199.90, 'https://images.kabum.com.br/produtos/fotos/320797/processador-amd-ryzen-7-5700x-cache-36mb-3-8ghz-4-6ghz-max-turbo-am4-100-100000926wof_1647636511_gg.jpg', 1);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Intel Core i9-13900K', 'Intel Core i9-13900K, 13ª Geração, 3.0GHz (5.8GHz Turbo), LGA 1700', 3599.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/416602/xlarge/Processador-Intel-Core-I9-13900K-5-80GHz-Max-Turbo-Cache-36MB-Quad-Core-32-Threads-LGA-1700_1752001191.jpg', 1);
+
+-- ID 2: Placas de Vídeo
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa de Vídeo RTX 4060', 'MSI Ventus 2X Black GeForce RTX 4060 8GB', 1899.00, 'https://images1.kabum.com.br/produtos/fotos/522531/placa-de-video-rtx-4060-asus-dual-o8g-evo-nvidia-geforce-8gb-gddr6-g-sync-ray-tracing-90yv0jc7-m0na00_1711036187_gg.jpg', 2);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa de Vídeo RX 6600', 'PowerColor Fighter AMD Radeon RX 6600 8GB', 1399.00, 'https://images.kabum.com.br/produtos/fotos/235984/placa-de-video-asrock-amd-radeon-rx-6600-cld-8g-8gb-90-ga2rzz-00uanf_1634738812_gg.jpg', 2);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa de Vídeo RTX 4070 Ti', 'Gigabyte GeForce RTX 4070 Ti Eagle, 12GB GDDR6X, DLSS 3', 5499.00, 'https://images.kabum.com.br/produtos/fotos/402564/placa-de-video-rtx-4070-ti-gigabyte-nvidia-geforce-12-gb-gddr6x-dlss-3-ray-tracing-gv-n407teagle-oc-12gd_1672920613_gg.jpg', 2);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa de Vídeo RX 7800 XT', 'ASRock AMD Radeon RX 7800 XT Challenger, 16GB GDDR6', 3699.00, 'https://images4.kabum.com.br/produtos/fotos/495214/placa-de-video-rx-7800-xt-gaming-oc-gigabyte-amd-16gb-gddr6-rgb-256-bits-gv-r78xtgaming-oc-16gd_1701438225_gg.jpg', 2);
+
+-- ID 3: Placas Mãe
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa Mãe B550M', 'Asus TUF Gaming B550M-Plus, AMD AM4, DDR4', 980.00, 'https://images.kabum.com.br/produtos/fotos/114781/placa-mae-gigabyte-b550m-aorus-elite-amd-am4-micro-atx-ddr4_1594908595_gg.jpg', 3);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa Mãe H610M', 'Gigabyte H610M S2H, Intel LGA 1700, DDR4', 549.90, 'https://images.kabum.com.br/produtos/fotos/276263/placa-mae-asus-prime-h610m-a-d4-lga-1700-h610-matx-ddr4_1675105753_gg.jpg', 3);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa Mãe Z790 Aorus Elite', 'Gigabyte Z790 Aorus Elite AX, Intel LGA 1700, DDR5, Wi-Fi 6E', 2199.90, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/530954/xlarge/Placa-M-e-Gigabyte-Z790-Aorus-Elite-X-WIFI-7-ATX-LGA-1700-DDR5-HDMI-Dp-M-2-USB-3-2_1744237235.jpg', 3);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Placa Mãe X670E Steel Legend', 'ASRock X670E Steel Legend, AMD AM5, DDR5, PCIe 5.0', 2599.00, 'https://images.kabum.com.br/produtos/fotos/386040/placa-mae-asus-x670e-steel-legend-atx-amd-ryzen-ddr5-wifi-bluetooth-90-mxbj40-a0uayz_1664285405_gg.jpg', 3);
+
+-- ID 4: Memória RAM
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Memória Fury Beast 8GB', 'Kingston Fury Beast, 8GB, 3200MHz, DDR4, Preto', 149.90, 'https://images.kabum.com.br/produtos/fotos/172369/memoria-kingston-fury-beast-8gb-3600mhz-ddr4-cl17-preto-kf436c17bb-8_1626209738_gg.jpg', 4);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Memória Vengeance 16GB', 'Corsair Vengeance LPX, 16GB, 3200MHz, DDR4', 289.00, 'https://images.kabum.com.br/produtos/fotos/583182/memoria-ram-corsair-vengeance-lpx-16gb-1x16gb-3200mhz-ddr4-cl16-preto-cmk16gx4m1e3200c16_1722861854_gg.jpg', 4);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Memória Corsair Dominator 32GB', 'Kit 2x16GB Corsair Dominator Platinum RGB, 5600MHz DDR5', 1299.00, 'https://images.kabum.com.br/produtos/fotos/526381/memoria-corsair-dominator-platinum-rgb-32gb-2x16gb-7200mhz-ddr5-cl34-otimizado-intel-xmp-preto-cmt32gx5m2x7200c34_1712148873_gg.jpg', 4);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Memória XPG Spectrix D50 8GB', 'XPG Spectrix D50, 8GB, 3200MHz, DDR4, RGB Tungsten', 179.90, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/206110/xlarge/Mem-ria-XPG-Spectrix-D50-RGB-8GB-3200MHz-DDR4-Para-Desktop-AX4U32008G16A-SW50_1762966420.jpg', 4);
+
+-- ID 5: Armazenamento
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('SSD Kingston NV2 1TB', 'SSD M.2 NVMe 1TB, Leitura 3500MB/s', 399.99, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/400812/xlarge/SSD-1TB-Kingston-Nv2-M-2-2280-PCIe-NVMe-Leitura-3500MB-s-Grava-o-2100MB-s-Snv2s-1000g_1763138630.jpg', 5);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('SSD SATA 480GB', 'SSD Kingston A400, 480GB, SATA, Leitura 500MB/s', 229.00, 'https://images.kabum.com.br/produtos/fotos/338408/ssd-wd-green-480gb-sata-leitura-545mb-s-gravacao-430mb-s-wds480g3g0a_1652465601_gg.jpg', 5);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('SSD Samsung 980 Pro 1TB', 'SSD Samsung 980 Pro M.2 NVMe, 1TB, Leitura 7000MB/s, PCIe 4.0', 799.00, 'https://images.kabum.com.br/produtos/fotos/163616/ssd-1-tb-samsung-980-pro-series-nvme-m-2-2280-pcie-4-0x4-leitura-7000mb-s-e-5000mb-s-mz-v8p1t0b-am_1673449032_gg.jpg', 5);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('HD Seagate Barracuda 2TB', 'HD Interno Seagate Barracuda 2TB, SATA III, 7200RPM', 349.00, 'https://images.kabum.com.br/produtos/fotos/100916/hd-seagate-barracuda-2tb-3-5-sata-st2000dm008_hd-seagate-barracuda-2tb-3-5-sata-st2000dm008_1552932729_gg.jpg', 5);
+
+-- ID 6: Monitores
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Monitor LG Ultrawide 29"', 'Monitor IPS Full HD 29UM69G, 75Hz, 1ms', 1250.00, 'https://images.kabum.com.br/produtos/fotos/magalu/277219/xlarge/Monitor-Gamer-Ultrawide-75Hz-Full-HD-29-LG_1763579764.jpg', 6);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Monitor Gamer AOC Hero', 'Monitor 24" 144Hz IPS, 1ms, G-Sync Compatible', 999.00, 'https://images1.kabum.com.br/produtos/fotos/111161/monitor-gamer-aoc-hero-w-led-27-widescreen-fhd-ips-hdmi-displayport-g-sync-compatible-144hz-1ms-altura-ajustavel-27g2-bk_1584370236_gg.jpg', 6);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Monitor Alienware 25" 360Hz', 'Monitor Gamer Alienware AW2521H, 360Hz, 1ms, IPS, G-Sync', 3499.00, 'https://m.media-amazon.com/images/I/81gaBRlYVeL.jpg', 6);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Monitor Dell 27" 4K', 'Monitor Dell S2721QS, 27 Polegadas, 4K UHD, IPS, HDR', 2100.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/574173/Monitor-Dell-De-27-Fhd-Usb-c-Hub-P2725he_1713890974_gg.jpg', 6);
+
+-- ID 7: Mouses
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Mouse Logitech G502', 'Logitech G502 Hero, 25K DPI, RGB, Peso Ajustável', 299.90, 'https://images4.kabum.com.br/produtos/fotos/98244/mouse-gamer-logitech-g502-hero-com-rgb-lightsync-ajustes-de-peso-11-botoes-programaveis-sensor-hero-25k-910-005550_1630676376_gg.jpg', 7);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Mouse Razer DeathAdder', 'Razer DeathAdder Essential, 6400 DPI, 5 Botões', 180.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/154304/xlarge/Mouse-Gamer-Razer-Deathadder-Essential-Com-Fio-6400-DPI-5-Bot-es-Preto_1761768217.jpg', 7);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Mouse Logitech G Pro X Superlight', 'Mouse Sem Fio Logitech G Pro X Superlight, Sensor Hero 25K, 63g', 699.90, 'https://images9.kabum.com.br/produtos/fotos/399019/mouse-gamer-sem-fio-logitech-g-pro-x-superlight-25600-dpi-5-botoes-usb-vermelho-910-006783_1668626464_gg.jpg', 7);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Mouse Razer Viper Ultimate', 'Mouse Gamer Sem Fio Razer Viper Ultimate, Dock de Carregamento', 599.00, 'https://images.kabum.com.br/produtos/fotos/110163/mouse-sem-fio-gamer-razer-viper-ultimate-chroma-8-botoes-20-000dpi-rz01-03050100-r3u1_1583261073_gg.jpg', 7);
+
+-- ID 8: Teclados
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Teclado Redragon Kumara', 'Teclado Mecânico Gamer Redragon Kumara, Switch Blue', 229.90, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/154145/xlarge/Teclado-Mec-nico-Gamer-Redragon-Kumara-K552-2-Vermelho-Switch-Brown-ABNT2_1764268428.jpg', 8);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Teclado HyperX Alloy', 'HyperX Alloy Core RGB, Membrana, Resistente a Líquidos', 299.00, 'https://images6.kabum.com.br/produtos/fotos/371586/teclado-mecanico-gamer-hyperx-alloy-mkw100-rgb-switch-red-full-size-us-preto-4p5e1aa-aba_1722882381_gg.jpg', 8);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Teclado Logitech G915 TKL', 'Teclado Mecânico Sem Fio Logitech G915 TKL, RGB Lightspeed, Low Profile', 1199.00, 'https://images1.kabum.com.br/produtos/fotos/652581/teclado-mecanico-gamer-sem-fio-logitech-g915-x-lightspeed-design-tkl-rgb-lightsync-usb-ou-bluetooth-e-switch-gl-tactile-preto-920-012715_1731263951_gg.jpg', 8);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Teclado Keychron K2', 'Teclado Mecânico Keychron K2 Wireless, RGB, Gateron Brown', 650.00, 'https://cf.shopee.com.br/file/f14f5ef288c1f67052574a6067008e2c', 8);
+
+-- ID 9: Headsets
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Headset Havit H2002D', 'Headset Gamer Havit, Drivers 53mm, Microfone Plugável', 199.00, 'https://images.kabum.com.br/produtos/fotos/102770/headset-gamer-havit-drivers-53mm-hv-h2002d_headset-gamer-havit-drivers-53mm-hv-h2002d_1564056874_g.jpg', 9);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Headset Logitech G733', 'Headset Sem Fio Logitech G733, RGB Lightsync, Lilás', 899.00, 'https://images1.kabum.com.br/produtos/fotos/120491/headset-gamer-sem-fio-logitech-g733-rgb-lightsync-7-1-dolby-surround-com-blue-voice-azul-981-000942_1612876505_gg.jpg', 9);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Headset Astro A50', 'Headset Sem Fio Astro A50 + Base Station Gen 4, PS5/PC', 1999.00, 'https://images4.kabum.com.br/produtos/fotos/102654/headset-sem-fio-astro-gaming-a50-base-station-gen-4-com-audio-dolby-para-ps4-pc-mac-preto-prata-939-001674_1614001918_gg.jpg', 9);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Headset SteelSeries Arctis Nova', 'SteelSeries Arctis Nova Pro Wireless, Cancelamento de Ruído Ativo', 2499.00, 'https://images.kabum.com.br/produtos/fotos/358125/headset-steelseries-arctis-nova-pro-drivers-40mm-hi-res-audio-preto-61527_1670246448_gg.jpg', 9);
+
+-- ID 10: Consoles
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('PlayStation 5', 'Console Sony PlayStation 5 Slim, SSD 1TB, Edição Digital', 3500.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/939944/xlarge/Console-Playstation-5-Slim-Digital-Edition-825GB-USB-HDMI-Branco_1762471114.png', 10);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Xbox Series S', 'Console Xbox Series S, SSD 512GB, Digital', 2300.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/200089/xlarge/Console-Microsoft-Xbox-Series-S-512GB-Branco-RRS-00006_1762794840.jpg', 10);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Nintendo Switch OLED', 'Console Nintendo Switch OLED Model, Branco, 64GB', 2199.00, 'https://images9.kabum.com.br/produtos/fotos/651149/console-nintendo-switch-modelo-oled-super-mario-kart-8-3-meses-do-nintendo-switch-online_1733945454_gg.jpg', 10);
+INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Xbox Series X', 'Console Xbox Series X, SSD 1TB, 4K 120FPS', 4200.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/209239/xlarge/Console-Xbox-Series-X-Microsoft-1Tb-Controle-Sem-Fio-Preto_1761156212.jpg', 10);
+-- insert into tb_category (name) values ('Cozinha');
+-- insert into tb_category (name) values ('Móveis');
+-- insert into tb_category (name) values ('Eletrônico');
+--
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Refrigerador 429L','Refrigerador 429L Branco, duplex....',1990.0,'https://cdn.leroymerlin.com.br/products/geladeira_brastemp_frost_free_duplex_429_litros_branca_com_tw_1552512005_bafc_600x600.jpg',2);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Notebook Arus 15.6','Notebook Aorus 15.6 Core I7, 16Gb Ram...',2449.0,'https://images0.kabum.com.br/produtos/fotos/420220/notebook-gamer-gigabyte-aorus-15-intel-core-i7-12700h-16gb-ram-ssd-1tb-15-6-full-hd-geforce-rtx3070-ti-windows-11-home-preto-xe4-73br514sh_1684341031_gg.jpg',1);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Monitor 27pol','Monitor Gamer 27pol 144Hz, 1ms',1129.99,'https://images7.kabum.com.br/produtos/fotos/113007/monitor-gamer-led-asus-tuf-gaming-27-full-hd-ips-hdmi-displayport-freesync-144hz-1ms-vg279q1r_1599165225_gg.jpg',1);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Kit Teclado e Mouse','Kit com teclado ABNT e mouse com 5 botões',199.0,'https://gazin-images.gazin.com.br/ZZfnUIxe_rlW0GXSIFZmSjKyzUk=/1920x/filters:format(webp):quality(75)/https://gazin-marketplace.s3.amazonaws.com/midias/imagens/2024/02/kit-teclado-e-mouse-gamer-viper-pro-python-usb-abnt2-5-botoes-112402212634.jpg',1);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Smartphone XYZ','Smartphone com tela de 9pol, 12GB....',9999.0,'https://i.zst.com.br/thumbs/12/16/15/1979005118.jpg',5);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('TV LCD 75pol','TV LCD 75pol, 5 HDMI...',7555.0,'https://images.kabum.com.br/produtos/fotos/sync_mirakl/591059/xlarge/Smart-TV-75-Polegadas-TCL-LED-4K-3-HDMI-1-USB-WiFi-Dual-Band-E-Bluetooth_1741269032.jpg',5);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Fogão 6 Bocas','Fogão 6 Bocas em aço inox, ...', 799.99,'https://venaxstore.com.br/venaxstore/30982/17340019151.jpg',3);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Roteador Wi-Fi 5.4GhZ','Roteador Wi-Fi 5.4GhZ, 6 antenas...',1299.0,'https://m.media-amazon.com/images/I/51tXbZtxq9L._AC_SX679_.jpg',1);into tb_product (name, description, price, url_imagem, category_id) values ('Refrigerador 429L','Refrigerador 429L Branco, duplex....',1990.0,'https://cdn.leroymerlin.com.br/products/geladeira_brastemp_frost_free_duplex_429_litros_branca_com_tw_1552512005_bafc_600x600.jpg',2);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Notebook Arus 15.6','Notebook Aorus 15.6 Core I7, 16Gb Ram...',2449.0,'https://images0.kabum.com.br/produtos/fotos/420220/notebook-gamer-gigabyte-aorus-15-intel-core-i7-12700h-16gb-ram-ssd-1tb-15-6-full-hd-geforce-rtx3070-ti-windows-11-home-preto-xe4-73br514sh_1684341031_gg.jpg',1);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Monitor 27pol','Monitor Gamer 27pol 144Hz, 1ms',1129.99,'https://images7.kabum.com.br/produtos/fotos/113007/monitor-gamer-led-asus-tuf-gaming-27-full-hd-ips-hdmi-displayport-freesync-144hz-1ms-vg279q1r_1599165225_gg.jpg',1);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Kit Teclado e Mouse','Kit com teclado ABNT e mouse com 5 botões',199.0,'https://gazin-images.gazin.com.br/ZZfnUIxe_rlW0GXSIFZmSjKyzUk=/1920x/filters:format(webp):quality(75)/https://gazin-marketplace.s3.amazonaws.com/midias/imagens/2024/02/kit-teclado-e-mouse-gamer-viper-pro-python-usb-abnt2-5-botoes-112402212634.jpg',1);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Smartphone XYZ','Smartphone com tela de 9pol, 12GB....',9999.0,'https://i.zst.com.br/thumbs/12/16/15/1979005118.jpg',5);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('TV LCD 75pol','TV LCD 75pol, 5 HDMI...',7555.0,'https://images.kabum.com.br/produtos/fotos/sync_mirakl/591059/xlarge/Smart-TV-75-Polegadas-TCL-LED-4K-3-HDMI-1-USB-WiFi-Dual-Band-E-Bluetooth_1741269032.jpg',5);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Fogão 6 Bocas','Fogão 6 Bocas em aço inox, ...', 799.99,'https://venaxstore.com.br/venaxstore/30982/17340019151.jpg',3);
+-- insert into tb_product (name, description, price, url_imagem, category_id) values ('Roteador Wi-Fi 5.4GhZ','Roteador Wi-Fi 5.4GhZ, 6 antenas...',1299.0,'https://m.media-amazon.com/images/I/51tXbZtxq9L._AC_SX679_.jpg',1);
+
+INSERT INTO tb_user(display_name, username, password) VALUES ('Administrador', 'admin','$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem');
+INSERT INTO tb_user(display_name, username, password) VALUES ('Teste', 'test','$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem');
+
+INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua das Flores', '123', 'Curitiba', 'PR', '80000-000', 'Brasil',1);
+INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Avenida Brasil', '456', 'São Paulo', 'SP', '01000-000','Brasil',2);
+
+INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-01T10:00:00', 'PENDING', 1, 1, 6890.0);
+INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-02T14:30:00', 'COMPLETED', 2, 2, 3397.0);
+
+INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (1, 1, 1990.0, 1, 1);
+INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (2, 2, 920.0, 1, 2);
+INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (1, 1, 1129.99, 2, 3);
+INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (2, 3, 199.0, 2, 4);

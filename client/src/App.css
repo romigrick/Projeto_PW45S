@@ -1,0 +1,15 @@
+
+.app-container {
+  min-height: 100vh;
+}
+
+.main-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem; 
+}
+
+
+.pi {
+  font-size: 1.25rem; 
+}

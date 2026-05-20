@@ -1,0 +1,243 @@
+.orders-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f9fafb;
+}
+
+.loading-error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 150px);
+    flex-grow: 1;
+}
+
+.filters-header {
+    background-color: #f3f4f6;
+    padding: 1rem 1rem 0;
+}
+
+.filters-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.filters-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.filters-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.filter-dropdown,
+.filter-calendar {
+    width: 100%;
+}
+
+.filter-panel {
+    z-index: 101;
+}
+
+.orders-count-desktop {
+    display: none;
+}
+
+.orders-count-mobile {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+    padding-bottom: 1rem;
+}
+
+.orders-main-content {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.25rem 1rem;
+    flex-grow: 1;
+}
+
+.orders-list-container {
+    width: 100%;
+}
+
+.orders-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.75rem;
+}
+
+.no-orders-container {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.no-orders-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+}
+
+.no-orders-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.no-orders-text {
+    color: #4b5563;
+    margin-bottom: 1rem;
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.order-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.order-card-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.order-card-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.order-card-image {
+    width: 6rem;
+    height: 6rem;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    background-color: #f3f4f6;
+}
+
+.order-card-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.order-product-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.order-product-description {
+    font-size: 1rem;
+    color: #374151;
+    margin-top: 0.75rem;
+    white-space: normal;
+}
+
+.order-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+}
+
+.order-meta .separator {
+    display: none;
+}
+
+.order-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.btn-buy-again {
+    background-color: #ff6600;
+    color: white;
+    border-color: #ff6600;
+}
+
+/* Estilos para Tablet e Desktop */
+@media (min-width: 768px) {
+    .filters-header {
+        padding-top: 1rem;
+        padding-bottom: 0;
+    }
+    
+    .filters-content {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .filters-actions {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    .filter-dropdown {
+        width: 14rem;
+    }
+
+    .filter-calendar {
+        width: 14rem;
+    }
+
+    .orders-count-desktop {
+        display: block;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .orders-count-mobile {
+        display: none;
+    }
+
+    .order-card-content {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .order-card-image-container {
+        justify-content: flex-start;
+    }
+
+    .order-card-actions {
+        flex-direction: column;
+        width: auto;
+        min-width: 150px;
+        margin-left: auto;
+    }
+
+    .order-meta .separator {
+        display: inline;
+        margin: 0 0.5rem;
+    }
+}
