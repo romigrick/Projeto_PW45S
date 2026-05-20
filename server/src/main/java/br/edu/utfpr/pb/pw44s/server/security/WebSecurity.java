@@ -62,6 +62,11 @@ public class WebSecurity {
                 .requestMatchers("/error/**").permitAll()
                 //permite que a rota "/h2-console" seja acessada por qualquer requisição mesmo o usuário não estando autenticado
                 .requestMatchers("/h2-console/**").permitAll()
+
+                //http://localhost:8044/swagger-ui/index.html
+                //http://localhost:8044/api-docs
+                .requestMatchers("/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
                 //permite que a rota "/products" seja acessada para GET sem autenticação
                 .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                 //permite que a rota "/categories" seja acessada para GET sem autenticação
