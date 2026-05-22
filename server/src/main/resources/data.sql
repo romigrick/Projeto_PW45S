@@ -67,34 +67,33 @@ INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUE
 INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Xbox Series S', 'Console Xbox Series S, SSD 512GB, Digital', 2300.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/200089/xlarge/Console-Microsoft-Xbox-Series-S-512GB-Branco-RRS-00006_1762794840.jpg', 10);
 INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Nintendo Switch OLED', 'Console Nintendo Switch OLED Model, Branco, 64GB', 2199.00, 'https://images9.kabum.com.br/produtos/fotos/651149/console-nintendo-switch-modelo-oled-super-mario-kart-8-3-meses-do-nintendo-switch-online_1733945454_gg.jpg', 10);
 INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Xbox Series X', 'Console Xbox Series X, SSD 1TB, 4K 120FPS', 4200.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/209239/xlarge/Console-Xbox-Series-X-Microsoft-1Tb-Controle-Sem-Fio-Preto_1761156212.jpg', 10);
--- insert into tb_category (name) values ('Cozinha');
--- insert into tb_category (name) values ('Móveis');
--- insert into tb_category (name) values ('Eletrônico');
---
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Refrigerador 429L','Refrigerador 429L Branco, duplex....',1990.0,'https://cdn.leroymerlin.com.br/products/geladeira_brastemp_frost_free_duplex_429_litros_branca_com_tw_1552512005_bafc_600x600.jpg',2);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Notebook Arus 15.6','Notebook Aorus 15.6 Core I7, 16Gb Ram...',2449.0,'https://images0.kabum.com.br/produtos/fotos/420220/notebook-gamer-gigabyte-aorus-15-intel-core-i7-12700h-16gb-ram-ssd-1tb-15-6-full-hd-geforce-rtx3070-ti-windows-11-home-preto-xe4-73br514sh_1684341031_gg.jpg',1);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Monitor 27pol','Monitor Gamer 27pol 144Hz, 1ms',1129.99,'https://images7.kabum.com.br/produtos/fotos/113007/monitor-gamer-led-asus-tuf-gaming-27-full-hd-ips-hdmi-displayport-freesync-144hz-1ms-vg279q1r_1599165225_gg.jpg',1);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Kit Teclado e Mouse','Kit com teclado ABNT e mouse com 5 botões',199.0,'https://gazin-images.gazin.com.br/ZZfnUIxe_rlW0GXSIFZmSjKyzUk=/1920x/filters:format(webp):quality(75)/https://gazin-marketplace.s3.amazonaws.com/midias/imagens/2024/02/kit-teclado-e-mouse-gamer-viper-pro-python-usb-abnt2-5-botoes-112402212634.jpg',1);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Smartphone XYZ','Smartphone com tela de 9pol, 12GB....',9999.0,'https://i.zst.com.br/thumbs/12/16/15/1979005118.jpg',5);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('TV LCD 75pol','TV LCD 75pol, 5 HDMI...',7555.0,'https://images.kabum.com.br/produtos/fotos/sync_mirakl/591059/xlarge/Smart-TV-75-Polegadas-TCL-LED-4K-3-HDMI-1-USB-WiFi-Dual-Band-E-Bluetooth_1741269032.jpg',5);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Fogão 6 Bocas','Fogão 6 Bocas em aço inox, ...', 799.99,'https://venaxstore.com.br/venaxstore/30982/17340019151.jpg',3);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Roteador Wi-Fi 5.4GhZ','Roteador Wi-Fi 5.4GhZ, 6 antenas...',1299.0,'https://m.media-amazon.com/images/I/51tXbZtxq9L._AC_SX679_.jpg',1);into tb_product (name, description, price, url_imagem, category_id) values ('Refrigerador 429L','Refrigerador 429L Branco, duplex....',1990.0,'https://cdn.leroymerlin.com.br/products/geladeira_brastemp_frost_free_duplex_429_litros_branca_com_tw_1552512005_bafc_600x600.jpg',2);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Notebook Arus 15.6','Notebook Aorus 15.6 Core I7, 16Gb Ram...',2449.0,'https://images0.kabum.com.br/produtos/fotos/420220/notebook-gamer-gigabyte-aorus-15-intel-core-i7-12700h-16gb-ram-ssd-1tb-15-6-full-hd-geforce-rtx3070-ti-windows-11-home-preto-xe4-73br514sh_1684341031_gg.jpg',1);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Monitor 27pol','Monitor Gamer 27pol 144Hz, 1ms',1129.99,'https://images7.kabum.com.br/produtos/fotos/113007/monitor-gamer-led-asus-tuf-gaming-27-full-hd-ips-hdmi-displayport-freesync-144hz-1ms-vg279q1r_1599165225_gg.jpg',1);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Kit Teclado e Mouse','Kit com teclado ABNT e mouse com 5 botões',199.0,'https://gazin-images.gazin.com.br/ZZfnUIxe_rlW0GXSIFZmSjKyzUk=/1920x/filters:format(webp):quality(75)/https://gazin-marketplace.s3.amazonaws.com/midias/imagens/2024/02/kit-teclado-e-mouse-gamer-viper-pro-python-usb-abnt2-5-botoes-112402212634.jpg',1);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Smartphone XYZ','Smartphone com tela de 9pol, 12GB....',9999.0,'https://i.zst.com.br/thumbs/12/16/15/1979005118.jpg',5);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('TV LCD 75pol','TV LCD 75pol, 5 HDMI...',7555.0,'https://images.kabum.com.br/produtos/fotos/sync_mirakl/591059/xlarge/Smart-TV-75-Polegadas-TCL-LED-4K-3-HDMI-1-USB-WiFi-Dual-Band-E-Bluetooth_1741269032.jpg',5);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Fogão 6 Bocas','Fogão 6 Bocas em aço inox, ...', 799.99,'https://venaxstore.com.br/venaxstore/30982/17340019151.jpg',3);
--- insert into tb_product (name, description, price, url_imagem, category_id) values ('Roteador Wi-Fi 5.4GhZ','Roteador Wi-Fi 5.4GhZ, 6 antenas...',1299.0,'https://m.media-amazon.com/images/I/51tXbZtxq9L._AC_SX679_.jpg',1);
 
-INSERT INTO tb_user(display_name, username, password) VALUES ('Administrador', 'admin','$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem');
-INSERT INTO tb_user(display_name, username, password) VALUES ('Teste', 'test','$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem');
+--Authority
+INSERT INTO tb_authority (authority) VALUES ('ROLE_ADMIN');
+INSERT INTO tb_authority (authority) VALUES ('ROLE_OPERADOR');
+INSERT INTO tb_authority (authority) VALUES ('ROLE_CLIENTE');
 
+-- User super admin
+INSERT INTO tb_user (username, display_name, password, active)
+VALUES ('admin', 'Super Admin', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true);
+INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (1, 1);
 INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua das Flores', '123', 'Curitiba', 'PR', '80000-000', 'Brasil',1);
-INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Avenida Brasil', '456', 'São Paulo', 'SP', '01000-000','Brasil',2);
 
-INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-01T10:00:00', 'PENDING', 1, 1, 6890.0);
-INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-02T14:30:00', 'COMPLETED', 2, 2, 3397.0);
+-- User operador
+INSERT INTO tb_user (username, display_name, password, active)
+VALUES ('operador', 'Operador', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true);
+INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (2, 2);
+INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua das Margaridas', '789', 'Pato Branco', 'PR', '80000-000', 'Brasil',2);
+
+-- User cliente teste
+INSERT INTO tb_user (username, display_name, password, active)
+VALUES ('cliente', 'Cliente Teste', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true);
+INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (3, 3);
+INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Avenida Brasil', '456', 'São Paulo', 'SP', '01000-000','Brasil',3);
+INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua 7 de Setembro', '369', 'Florianópolis', 'SC', '01000-000','Brasil',3);
+
+INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-01T10:00:00', 'PENDING', 2, 1, 6890.0);
+INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-02T14:30:00', 'COMPLETED', 3, 2, 3397.0);
 
 INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (1, 1, 1990.0, 1, 1);
 INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (2, 2, 920.0, 1, 2);
