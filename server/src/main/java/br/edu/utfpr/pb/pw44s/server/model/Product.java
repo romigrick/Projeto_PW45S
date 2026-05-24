@@ -17,12 +17,23 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank
     private String name;
+
     private String description;
+
     @NotNull
     private BigDecimal price;
+
     private String urlImagem;
+
     @ManyToOne
     private Category category;
+
+    @Column(name = "image_name")
+    private String imageName;
+
+    @Column(length = 50, name = "content_type")
+    private String contentType;
 }

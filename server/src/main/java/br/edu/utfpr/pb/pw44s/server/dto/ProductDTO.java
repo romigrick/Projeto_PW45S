@@ -1,15 +1,11 @@
 package br.edu.utfpr.pb.pw44s.server.dto;
-import br.edu.utfpr.pb.pw44s.server.model.Category;
 import br.edu.utfpr.pb.pw44s.server.model.Product;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
+
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ProductDTO {
     private Long id;
     private String name;
@@ -17,6 +13,27 @@ public class ProductDTO {
     private BigDecimal price;
     private String urlImagem;
     private CategoryDTO category;
+    private  String imageName;
+    private  String contentType;
+
+    public ProductDTO() {}
+
+    // Construtor @Builder
+    @Builder
+    public ProductDTO(Long id, String name, String description, BigDecimal price,
+                      String urlImagem, CategoryDTO category,
+                      String imageName, String contentType) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.urlImagem = urlImagem;
+        this.category = category;
+        this.imageName = imageName;
+        this.contentType = contentType;
+    }
+
+    // Construtor de conversão
     public ProductDTO(Product product) {
         if (product != null) {
             this.id = product.getId();
@@ -24,12 +41,11 @@ public class ProductDTO {
             this.description = product.getDescription();
             this.price = product.getPrice();
             this.urlImagem = product.getUrlImagem();
+            this.imageName = product.getImageName();
+            this.contentType = product.getContentType();
             if (product.getCategory() != null) {
                 this.category = new CategoryDTO(product.getCategory());
             }
         }
-    }
-    public  ProductDTO convertToEntity(Product product) {
-        return new ProductDTO(product);
     }
 }

@@ -10,7 +10,6 @@ INSERT INTO tb_category (name) VALUES ('Headsets');        -- ID 9
 INSERT INTO tb_category (name) VALUES ('Consoles');        -- ID 10
 -- ID 1: Processadores
 INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Ryzen 5 5600', 'AMD Ryzen 5 5600, 3.5GHz (4.4GHz Turbo), 6-Cores, AM4', 849.00, 'https://images.kabum.com.br/produtos/fotos/320798/processador-amd-ryzen-5-5600-cache-35mb-3-7ghz-4-4ghz-max-turbo-am4-100-100000927box_1647636743_gg.jpg', 1);
-INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Intel Core i5-12400F', 'Intel Core i5-12400F, 2.5GHz (4.4GHz Turbo), LGA 1700', 920.00, 'https://images.kabum.com.br/produtos/fotos/283718/processador-intel-core-i5-12400f-cache-xmb-xghz-xghz-max-turbo-lga-1700-bx8071512400f_1640094446_gg.jpg', 1);
 INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Ryzen 7 5700X', 'AMD Ryzen 7 5700X, 3.4GHz (4.6GHz Turbo), 8-Cores, Sem Vídeo', 1199.90, 'https://images.kabum.com.br/produtos/fotos/320797/processador-amd-ryzen-7-5700x-cache-36mb-3-8ghz-4-6ghz-max-turbo-am4-100-100000926wof_1647636511_gg.jpg', 1);
 INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUES ('Processador Intel Core i9-13900K', 'Intel Core i9-13900K, 13ª Geração, 3.0GHz (5.8GHz Turbo), LGA 1700', 3599.00, 'https://images.kabum.com.br/produtos/fotos/sync_mirakl/416602/xlarge/Processador-Intel-Core-I9-13900K-5-80GHz-Max-Turbo-Cache-36MB-Quad-Core-32-Threads-LGA-1700_1752001191.jpg', 1);
 
