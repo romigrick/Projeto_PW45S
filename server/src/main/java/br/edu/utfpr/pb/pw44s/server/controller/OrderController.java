@@ -1,11 +1,11 @@
 package br.edu.utfpr.pb.pw44s.server.controller;
 import br.edu.utfpr.pb.pw44s.server.dto.OrderDTO;
-import br.edu.utfpr.pb.pw44s.server.model.Address;
-import br.edu.utfpr.pb.pw44s.server.model.Order;
-import br.edu.utfpr.pb.pw44s.server.model.OrderItem;
-import br.edu.utfpr.pb.pw44s.server.model.User;
+import br.edu.utfpr.pb.pw44s.server.dto.OrderStatusHistoryDTO;
+import br.edu.utfpr.pb.pw44s.server.model.*;
 import br.edu.utfpr.pb.pw44s.server.repository.AddressRepository;
+import br.edu.utfpr.pb.pw44s.server.repository.OrderStatusHistoryRepository;
 import br.edu.utfpr.pb.pw44s.server.repository.UserRepository;
+import br.edu.utfpr.pb.pw44s.server.service.EmailService;
 import br.edu.utfpr.pb.pw44s.server.service.ICrudService;
 import br.edu.utfpr.pb.pw44s.server.service.IOrderService;
 import org.modelmapper.ModelMapper;
@@ -25,12 +25,20 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
-    public OrderController(IOrderService orderService, ModelMapper modelMapper, UserRepository userRepository, AddressRepository addressRepository) {
+    private final OrderStatusHistoryRepository statusHistoryRepository;
+    private final EmailService emailService;
+
+    public OrderController(IOrderService orderService, ModelMapper modelMapper,
+                           UserRepository userRepository, AddressRepository addressRepository,
+                           OrderStatusHistoryRepository statusHistoryRepository,
+                           EmailService emailService) {
         super(Order.class, OrderDTO.class);
         this.orderService = orderService;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.statusHistoryRepository = statusHistoryRepository;
+        this.emailService = emailService;
     }
     @Override
     protected ICrudService<Order, Long> getService() {
@@ -95,5 +103,40 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
             return user.getId();
         }
         throw new RuntimeException("User not found: " + username);
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
+    public ResponseEntity<OrderDTO> updateStatus(
+            @PathVariable Long id,
+            @RequestParam Order.OrderStatus status,
+            @RequestParam(required = false) String observation,
+            Authentication authentication) {
+
+        User changedBy = userRepository.findUserByUsername(authentication.getName());
+        Order updated = orderService.updateOrderStatus(id, status, observation, changedBy);
+        return ResponseEntity.ok(new OrderDTO(updated));
+    }
+
+    @GetMapping("/{id}/history")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
+    public ResponseEntity<List<OrderStatusHistoryDTO>> getHistory(@PathVariable Long id) {
+        List<OrderStatusHistory> history = statusHistoryRepository
+                .findByOrderIdOrderByChangedAtDesc(id);
+        return ResponseEntity.ok(history.stream()
+                .map(OrderStatusHistoryDTO::new)
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/test-email")
+    public ResponseEntity<String> testEmail() {
+        emailService.sendOrderStatusUpdate(
+                "giseli3690@gmail.com",
+                "Giseli",
+                1L,
+                "AGUARDANDO_PAGAMENTO",
+                "PAGO"
+        );
+        return ResponseEntity.ok("E-mail enviado!");
     }
 }

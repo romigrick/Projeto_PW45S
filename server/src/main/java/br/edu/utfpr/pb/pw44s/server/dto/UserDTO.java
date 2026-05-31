@@ -13,6 +13,7 @@ public class UserDTO {
     private Long id;
     private String username;
     private String displayName;
+    private String email;
 
     private boolean active;
     private Set<String> roles;
@@ -22,6 +23,7 @@ public class UserDTO {
             this.id = user.getId();
             this.username = user.getUsername();
             this.displayName = user.getDisplayName();
+            this.email = user.getEmail();
             this.active = user.isActive();
 
             if (user.getUserAuthorities() != null) {

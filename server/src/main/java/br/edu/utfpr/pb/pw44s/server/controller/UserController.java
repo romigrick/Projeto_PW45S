@@ -33,7 +33,7 @@ public class UserController {
     @PostMapping
     public GenericResponse createUser(@Valid @RequestBody User user) {
         this.userService.save(user);
-        return new GenericResponse("Usuário cadastrado com sucesso. Aguarde a liberação do Administrador.");
+        return new GenericResponse("Usuário cadastrado com sucesso.");
     }
 
     @GetMapping

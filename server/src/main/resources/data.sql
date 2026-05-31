@@ -73,26 +73,26 @@ INSERT INTO tb_authority (authority) VALUES ('ROLE_OPERADOR');
 INSERT INTO tb_authority (authority) VALUES ('ROLE_CLIENTE');
 
 -- User super admin
-INSERT INTO tb_user (username, display_name, password, active)
-VALUES ('admin', 'Super Admin', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true);
+INSERT INTO tb_user (username, display_name, password, active, email)
+VALUES ('admin', 'Super Admin', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true, 'admin@email.com');
 INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (1, 1);
 INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua das Flores', '123', 'Curitiba', 'PR', '80000-000', 'Brasil',1);
 
 -- User operador
-INSERT INTO tb_user (username, display_name, password, active)
-VALUES ('operador', 'Operador', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true);
+INSERT INTO tb_user (username, display_name, password, active, email)
+VALUES ('operador', 'Operador', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true, 'operador@email.com');
 INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (2, 2);
 INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua das Margaridas', '789', 'Pato Branco', 'PR', '80000-000', 'Brasil',2);
 
 -- User cliente teste
-INSERT INTO tb_user (username, display_name, password, active)
-VALUES ('cliente', 'Cliente Teste', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true);
+INSERT INTO tb_user (username, display_name, password, active, email)
+VALUES ('cliente', 'Cliente Teste', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true, 'cliente@email.com');
 INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (3, 3);
 INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Avenida Brasil', '456', 'São Paulo', 'SP', '01000-000','Brasil',3);
 INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua 7 de Setembro', '369', 'Florianópolis', 'SC', '01000-000','Brasil',3);
 
-INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-01T10:00:00', 'PENDING', 2, 1, 6890.0);
-INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-02T14:30:00', 'COMPLETED', 3, 2, 3397.0);
+INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-01T10:00:00', 'AGUARDANDO_PAGAMENTO', 2, 1, 6890.0);
+INSERT INTO tb_order (order_date, status, user_id, address_id, total) VALUES ('2023-01-02T14:30:00', 'CONCLUIDO', 3, 2, 3397.0);
 
 INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (1, 1, 1990.0, 1, 1);
 INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (2, 2, 920.0, 1, 2);

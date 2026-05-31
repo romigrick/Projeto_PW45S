@@ -1,6 +1,7 @@
 package br.edu.utfpr.pb.pw44s.server.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -38,6 +39,11 @@ public class User implements UserDetails {
     private String password;
 
     @NotNull
+    @Email
+    @Column(unique = true)
+    private String email;
+
+    @NotNull
     @Column(name = "active", nullable = false)
     private boolean active = false;
 
@@ -45,6 +51,7 @@ public class User implements UserDetails {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REFRESH, CascadeType.DETACH
     })
+
     @JoinTable(name = "tb_user_authorities",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "authority_id", referencedColumnName = "id")

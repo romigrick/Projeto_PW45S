@@ -4,6 +4,7 @@ import br.edu.utfpr.pb.pw44s.server.model.Authority;
 import br.edu.utfpr.pb.pw44s.server.model.User;
 import br.edu.utfpr.pb.pw44s.server.repository.AuthorityRepository;
 import br.edu.utfpr.pb.pw44s.server.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,10 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -38,6 +39,8 @@ public class UserService {
         user.setActive(true);
         Authority roleCliente = authorityRepository.findByAuthority("ROLE_CLIENTE");
         user.setUserAuthorities(Set.of(roleCliente));
+
+        log.info("Novo usuário cadastrado | username: {}", user.getUsername());
 
         this.userRepository.save(user);
     }
@@ -63,6 +66,8 @@ public class UserService {
 
         user.setUserAuthorities(authorities);
         user.setActive(true);
+
+        log.info("Usuário ativado | username: {} | permissão: {}", user.getUsername(), roleName);
 
         userRepository.save(user);
     }
