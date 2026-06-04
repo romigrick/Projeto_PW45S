@@ -9,9 +9,9 @@ import br.edu.utfpr.pb.pw44s.server.service.IOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Service
 @Slf4j
 public class OrderServiceImpl extends CrudServiceImpl<Order, Long> implements IOrderService {
@@ -100,17 +100,6 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long> implements IO
         // Atualiza status
         order.setStatus(newStatus);
         Order saved = orderRepository.save(order);
-
-        // Envia e-mail
-        if (order.getUser() != null && order.getUser().getEmail() != null) {
-            emailService.sendOrderStatusUpdate(
-                    order.getUser().getEmail(),
-                    order.getUser().getDisplayName(),
-                    orderId,
-                    previous != null ? previous.name() : "N/A",
-                    newStatus.name()
-            );
-        }
 
         log.info("Status do pedido #{} alterado de {} para {} por {}",
                 orderId, previous, newStatus,

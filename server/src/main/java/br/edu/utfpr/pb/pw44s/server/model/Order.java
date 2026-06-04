@@ -50,4 +50,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("changedAt DESC")
     private List<OrderStatusHistory> statusHistory;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderAttachment> attachments;
 }

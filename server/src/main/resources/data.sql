@@ -69,7 +69,7 @@ INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUE
 
 --Authority
 INSERT INTO tb_authority (authority) VALUES ('ROLE_ADMIN');
-INSERT INTO tb_authority (authority) VALUES ('ROLE_OPERADOR');
+INSERT INTO tb_authority (authority) VALUES ('ROLE_OPERATOR');
 INSERT INTO tb_authority (authority) VALUES ('ROLE_CLIENTE');
 
 -- User super admin
@@ -78,9 +78,9 @@ VALUES ('admin', 'Super Admin', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1Q
 INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (1, 1);
 INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua das Flores', '123', 'Curitiba', 'PR', '80000-000', 'Brasil',1);
 
--- User operador
+-- User operator
 INSERT INTO tb_user (username, display_name, password, active, email)
-VALUES ('operador', 'Operador', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true, 'operador@email.com');
+VALUES ('operador', 'Operador', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true, 'giseli3690@gmail.com');
 INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (2, 2);
 INSERT INTO tb_address (street, number, city, state, zip_code,country, user_id) VALUES ('Rua das Margaridas', '789', 'Pato Branco', 'PR', '80000-000', 'Brasil',2);
 
