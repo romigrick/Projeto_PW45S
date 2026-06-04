@@ -18,4 +18,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
            "LEFT JOIN FETCH p.category " +
            "ORDER BY o.id")
     List<Order> findAllWithAllRelationships();
+
+    @Query("SELECT DISTINCT o FROM Order o " +
+            "LEFT JOIN FETCH o.user " +
+            "LEFT JOIN FETCH o.address " +
+            "LEFT JOIN FETCH o.items i " +
+            "LEFT JOIN FETCH i.product p " +
+            "LEFT JOIN FETCH p.category " +
+            "WHERE o.status = :status " +
+            "ORDER BY o.id")
+    List<Order> findByStatus(@Param("status") Order.OrderStatus status);
 }

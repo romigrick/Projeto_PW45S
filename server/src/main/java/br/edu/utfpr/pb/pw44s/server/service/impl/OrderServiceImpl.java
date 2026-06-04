@@ -107,4 +107,14 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long> implements IO
 
         return saved;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Order> findByStatus(Order.OrderStatus status) {
+        List<Order> orders = orderRepository.findByStatus(status);
+        for (Order order : orders) {
+            ensureRelationshipsLoaded(order);
+        }
+        return orders;
+    }
 }

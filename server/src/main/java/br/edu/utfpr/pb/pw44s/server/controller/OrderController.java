@@ -370,4 +370,14 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
                         || a.getAuthority().equals("ROLE_OPERATOR"));
     }
+
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
+    public ResponseEntity<List<OrderDTO>> findByStatus(@PathVariable Order.OrderStatus status) {
+        List<Order> orders = orderService.findByStatus(status);
+        List<OrderDTO> orderDTOs = orders.stream()
+                .map(OrderDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(orderDTOs);
+    }
 }
