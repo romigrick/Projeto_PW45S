@@ -136,7 +136,6 @@ export const AdminDashboard = () => {
         />
       </div>
 
-      {/* Top 4 summary cards — plain divs, mesmo estilo do projeto */}
       <div
         className="mb-4"
         style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}
@@ -151,7 +150,6 @@ export const AdminDashboard = () => {
         {summaryCard('Em Transporte', statusCount['EM_TRANSPORTE'] || 0, 'pi-truck', '#06b6d4', '#cffafe', '#06b6d4')}
       </div>
 
-      {/* Status breakdown — 5 cards in one row */}
       <div
         className="mb-4"
         style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 2fr)', gap: '1rem' }}
@@ -173,7 +171,6 @@ export const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* Recent orders */}
       <div className="surface-card shadow-2 border-round p-3">
         <div className="flex align-items-center justify-content-between mb-3">
           <h3 className="m-0 text-800 font-semibold">Pedidos Recentes</h3>

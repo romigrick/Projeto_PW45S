@@ -148,7 +148,6 @@ export const AdminUsersPage = () => {
     <div>
       <Toast ref={toast} />
 
-      {/* Summary cards */}
       <div
         className="mb-4"
         style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}
@@ -167,7 +166,6 @@ export const AdminUsersPage = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="surface-card shadow-2 border-round p-3">
         <DataTable
           value={filteredUsers}
@@ -190,7 +188,6 @@ export const AdminUsersPage = () => {
         </DataTable>
       </div>
 
-      {/* Dialog */}
       <Dialog
         visible={dialogVisible}
         onHide={() => setDialogVisible(false)}

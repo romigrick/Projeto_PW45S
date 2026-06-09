@@ -31,6 +31,15 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELADO: 'Cancelado',
 };
 
+const STATUS_SEVERITY: Record<string, "success" | "info" | "warning" | "danger" | "help" | "secondary" | undefined> = {
+  AGUARDANDO_PAGAMENTO: 'warning',
+  PAGO: 'info',
+  EM_PREPARACAO: 'help',
+  EM_TRANSPORTE: 'info',
+  CONCLUIDO: 'success',
+  CANCELADO: 'danger',
+};
+
 export const AdminOrdersPage = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,11 +107,11 @@ export const AdminOrdersPage = () => {
     const matchesStatus = statusFilter ? order.status === statusFilter : true;
     const matchesSearch = globalFilter
       ? String(order.id).includes(globalFilter) ||
-        (order.paymentMethod || '').toLowerCase().includes(globalFilter.toLowerCase())
+      (order.paymentMethod || '').toLowerCase().includes(globalFilter.toLowerCase())
       : true;
     const matchesDate = dateFilter
       ? order.createdAt &&
-        new Date(order.createdAt).toDateString() === dateFilter.toDateString()
+      new Date(order.createdAt).toDateString() === dateFilter.toDateString()
       : true;
     return matchesStatus && matchesSearch && matchesDate;
   });
