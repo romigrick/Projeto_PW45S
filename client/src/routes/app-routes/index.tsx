@@ -17,6 +17,12 @@ import { CategoryListPage } from '../../pages/category-list';
 import { CategoryFormPage } from '../../pages/category-form';
 import { ProductListPage } from '../../pages/product-list';
 import { ProductFormPage } from '../../pages/product-form';
+import { AdminRoute } from './admin-route';
+import { AdminLayout } from '../../components/AdminLayout';
+import { AdminDashboard } from '../../pages/AdminDashboard';
+import { AdminOrdersPage } from '../../pages/AdminOrdersPage';
+import { AdminOrderDetailPage } from '../../pages/AdminOrderDetailPage';
+import { AdminUsersPage } from '../../pages/AdminUsersPage';
 
 export const AppRoutes = () => {
   return (
@@ -32,7 +38,7 @@ export const AppRoutes = () => {
       <Route path="/hardware" element={<ProductListingPage />} />
       <Route path="/cart" element={<CartPage />} />
 
-        <Route element={<RequireAuth />}>
+      <Route element={<RequireAuth />}>
         <Route path="/categories" element={<CategoryListPage />} />
         <Route path="/categories/new" element={<CategoryFormPage />} />
         <Route path="/categories/:id" element={<CategoryFormPage />} />
@@ -41,7 +47,16 @@ export const AppRoutes = () => {
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:id" element={<OrderDetailPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-        
+      </Route>
+
+      {/* Admin routes */}
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/orders" element={<AdminOrdersPage />} />
+          <Route path="/admin/orders/:id" element={<AdminOrderDetailPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+        </Route>
       </Route>
     </Routes>
   );

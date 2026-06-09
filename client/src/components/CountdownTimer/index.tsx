@@ -5,7 +5,7 @@ import './styles.css';
 const CountdownTimer = ({ compact = false }) => {
   const calculateTimeLeft = (): { dias: number; horas: number; minutos: number; segundos: number } => {
      
-    const targetTime = new Date('2025-12-18T00:00:00').getTime(); 
+    const targetTime = new Date('2026-07-07T00:00:00').getTime(); 
     const difference = targetTime - new Date().getTime();
 
     if (difference > 0) {

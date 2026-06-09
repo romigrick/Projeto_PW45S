@@ -8,7 +8,7 @@ export interface IResponse {
   status?: number;
   success?: boolean;
   message?: string;
-  data?: any
+  data?: any;
 }
 
 export interface IUserLogin {
@@ -56,7 +56,7 @@ export interface IOrderItem {
 }
 
 export interface IOrderPayloadItem {
-  product: { id: number };  
+  product: { id: number };
   quantity: number;
   price: number;
 }
@@ -86,4 +86,34 @@ export interface IAddress {
   state: string;
   zipCode: string;
   country: string;
+}
+
+export interface IUser {
+  id?: number;
+  displayName: string;
+  username: string;
+  email?: string;
+  active: boolean;       // campo real do UserDTO
+  roles?: Set<string>;   // campo real do UserDTO — Set<String> no backend
+}
+
+// Alinhado com OrderAttachmentDTO do backend
+export interface IAttachment {
+  id?: number;
+  originalFileName: string;
+  contentType: string;
+  fileSize?: number;
+  uploadedAt: string;
+  description?: string;
+  uploadedBy?: string;
+}
+
+// Alinhado com OrderStatusHistoryDTO do backend
+export interface IOrderStatusHistory {
+  id?: number;
+  previousStatus?: string;
+  newStatus: string;
+  changedBy?: string;
+  changedAt: string;
+  observation?: string;
 }

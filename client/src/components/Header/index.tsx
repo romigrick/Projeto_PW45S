@@ -12,7 +12,7 @@ import './styles.css';
 
 interface AuthDisplayProps {
   authenticated: boolean;
-  authenticatedUser: { displayName?: string } | null;
+  authenticatedUser: { displayName?: string; authorities?: { authority: string }[] } | null;
   handleLogout: () => void;
   navigate: (path: string) => void;
   isMobile: boolean;
@@ -21,6 +21,7 @@ interface AuthDisplayProps {
 const AuthDisplay: React.FC<AuthDisplayProps> = ({ authenticated, authenticatedUser, handleLogout, navigate, isMobile }) => {
   const userMenuRef = useRef<OverlayPanel>(null);
   const [mobileUserMenuOpen, setMobileUserMenuOpen] = useState(false);
+  const isAdmin = authenticatedUser?.authorities?.some(a => a.authority === 'ROLE_ADMIN');
 
   const userMenuItems = [
     {
@@ -43,6 +44,11 @@ const AuthDisplay: React.FC<AuthDisplayProps> = ({ authenticated, authenticatedU
       icon: 'pi pi-map-marker',
       command: () => { navigate('/addresses'); if (isMobile) setMobileUserMenuOpen(false); }
     },
+    ...(isAdmin ? [{
+      label: 'Painel Administrativo',
+      icon: 'pi pi-shield',
+      command: () => { navigate('/admin/dashboard'); if (isMobile) setMobileUserMenuOpen(false); }
+    }] : []),
     {
       separator: true
     },
@@ -107,7 +113,8 @@ const userMenuItemsForMobile = (
     navigate: (path: string) => void,
     handleLogout: () => void,
     setMobileMenuOpen: (open: boolean) => void,
-    setMobileUserMenuOpen: (open: boolean) => void
+    setMobileUserMenuOpen: (open: boolean) => void,
+    isAdmin?: boolean
   ) => [
     {
       label: 'Minha Conta',
@@ -129,6 +136,11 @@ const userMenuItemsForMobile = (
       icon: 'pi pi-map-marker',
       command: () => { navigate('/addresses'); setMobileMenuOpen(false); setMobileUserMenuOpen(false); }
     },
+    ...(isAdmin ? [{
+      label: 'Painel Administrativo',
+      icon: 'pi pi-shield',
+      command: () => { navigate('/admin/dashboard'); setMobileMenuOpen(false); setMobileUserMenuOpen(false); }
+    }] : []),
     {
       separator: true
     },
@@ -296,7 +308,7 @@ const Header = () => {
                 <i className={`pi ${mobileUserMenuOpen ? 'pi-chevron-up' : 'pi-chevron-down'} ml-auto`}></i>
                 {mobileUserMenuOpen && (
                   <div className="user-menu-mobile-dropdown">
-                    <Menu model={userMenuItemsForMobile(navigate, handleLogout, setMobileMenuOpen, setMobileUserMenuOpen)} className="user-menu-mobile" />
+                    <Menu model={userMenuItemsForMobile(navigate, handleLogout, setMobileMenuOpen, setMobileUserMenuOpen, authenticatedUser?.authorities?.some(a => a.authority === 'ROLE_ADMIN'))} className="user-menu-mobile" />
                   </div>
                 )}
               </div>
