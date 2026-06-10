@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export const AdminNavbar = () => {
-  const { logout } = useAuth();
+  const { handleLogout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const logout = () => {
+    handleLogout();
     navigate('/login');
   };
 
@@ -45,7 +45,7 @@ export const AdminNavbar = () => {
         </div>
       </div>
       <button
-        onClick={handleLogout}
+        onClick={logout}
         className="border-none cursor-pointer font-semibold text-sm px-3 py-2 border-round"
         style={{ backgroundColor: 'transparent', color: 'white' }}
         onMouseEnter={e => (e.currentTarget.style.color = '#fca5a5')}
