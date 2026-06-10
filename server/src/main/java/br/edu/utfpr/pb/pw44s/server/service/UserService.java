@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,6 +69,19 @@ public class UserService {
         user.setActive(true);
 
         log.info("Usuário ativado | username: {} | permissão: {}", user.getUsername(), roleName);
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deactivateUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+
+        user.setActive(false);
+        user.setUserAuthorities(Collections.emptySet());
+
+        log.info("Usuário desativado | username: {}", user.getUsername());
 
         userRepository.save(user);
     }

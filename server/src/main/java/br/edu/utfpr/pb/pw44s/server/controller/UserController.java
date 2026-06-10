@@ -49,6 +49,13 @@ public class UserController {
         return new GenericResponse("Usuário ativado e permissão concedida.");
     }
 
+    @PatchMapping("/{id}/desativar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public GenericResponse deactivateUser(@PathVariable Long id) {
+        userService.deactivateUser(id);
+        return new GenericResponse("Usuário desativado com sucesso.");
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleException(MethodArgumentNotValidException exception,
