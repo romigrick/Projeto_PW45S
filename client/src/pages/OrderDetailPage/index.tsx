@@ -1,41 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import OrderService from '../../services/orderService';
-import type { IOrder, IOrderItem } from '../../commons/types';
+import type { IOrder, IOrderItem, IAttachment } from '../../commons/types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useCart } from '../../context/CartContext';
 import { Button } from 'primereact/button';
 import './styles.css';
-
 import { calculateShipping } from '../../lib/shipping';
+
+const STATUS_LABELS: Record<string, string> = {
+  AGUARDANDO_PAGAMENTO: 'Aguardando Pagamento',
+  PAGO: 'Pago',
+  EM_PREPARACAO: 'Em Preparação',
+  EM_TRANSPORTE: 'Em Transporte',
+  CONCLUIDO: 'Concluído',
+  CANCELADO: 'Cancelado',
+};
 
 const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [order, setOrder] = useState<IOrder | null>(null);
+  const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
-  
-  useEffect(() => {
-    if (!id) {
-      setError('ID do pedido não fornecido.');
-      setLoading(false);
-      return;
-    }
 
+  useEffect(() => {
+    if (!id) { setError('ID do pedido não fornecido.'); setLoading(false); return; }
     const fetchOrder = async () => {
       try {
-        const response = await OrderService.getOrderById(Number(id));
-        if (response.success && response.data) {
-          setOrder(response.data as IOrder);
+        const [orderRes, attachRes] = await Promise.all([
+          OrderService.getOrderById(Number(id)),
+          OrderService.getAttachments(Number(id)),
+        ]);
+        if (orderRes.success && orderRes.data) {
+          setOrder(orderRes.data as IOrder);
         } else {
-          setError(response.message || 'Erro ao buscar detalhes do pedido.');
+          setError(orderRes.message || 'Erro ao buscar detalhes do pedido.');
         }
+        if (attachRes.success) setAttachments(attachRes.data || []);
       } catch (err) {
         setError('Ocorreu um erro ao buscar os detalhes do seu pedido.');
-        console.error('Erro ao buscar detalhes do pedido:', err);
       } finally {
         setLoading(false);
       }
@@ -46,47 +53,36 @@ const OrderDetailPage = () => {
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return 'Data inválida';
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return 'Data inválida';
-    }
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    if (isNaN(date.getTime())) return 'Data inválida';
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
-  
+
   const formatCurrency = (value: number | undefined) => {
     if (typeof value !== 'number') return 'R$ 0,00';
-    return value.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
 
   const getStatusLabel = (status: string | undefined) => {
     if (!status) return 'Desconhecido';
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'Pendente';
-      case 'delivered':
-        return 'Entregue';
-      case 'processing':
-        return 'Processando';
-      case 'shipped':
-        return 'Enviado';
-      default:
-        return status;
-    }
+    return STATUS_LABELS[status] || status;
   };
 
   const handleBuyAgain = () => {
     if (order?.items) {
-      order.items.forEach(item => {
-        addToCart(item.product, item.quantity);
-      });
+      order.items.forEach(item => { addToCart(item.product, item.quantity); });
       navigate('/cart');
     }
+  };
+
+  const handleDownload = (attachment: IAttachment) => {
+    if (!attachment.id || !id) return;
+    OrderService.downloadAttachment(Number(id), attachment.id, attachment.originalFileName);
+  };
+
+  const formatSize = (bytes?: number) => {
+    if (!bytes) return '';
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   if (loading) {
@@ -112,66 +108,46 @@ const OrderDetailPage = () => {
           <div className="text-center">
             <i className="pi pi-exclamation-triangle text-4xl text-red-500 mb-3"></i>
             <p className="text-red-500">{error || 'Pedido não encontrado.'}</p>
-            <Button
-              label="Voltar para Meus Pedidos"
-              icon="pi pi-arrow-left"
-              onClick={() => navigate('/orders')}
-              className="mt-3 p-button-secondary"
-            />
+            <Button label="Voltar para Meus Pedidos" icon="pi pi-arrow-left" onClick={() => navigate('/orders')} className="mt-3 p-button-secondary" />
           </div>
         </div>
         <Footer />
       </div>
     );
   }
-  
+
   const totalItems = order.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
   const subtotal = order.items?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0;
   const shippingCost = calculateShipping(subtotal);
   const total = subtotal + shippingCost;
-
 
   return (
     <div className="order-detail-page">
       <Header />
       <main className="order-detail-container">
         <div className="order-summary-header">
-          <Button
-            icon="pi pi-arrow-left"
-            label="Meus Pedidos"
-            className="p-button-text p-button-secondary back-button"
-            onClick={() => navigate('/orders')}
-          />
+          <Button icon="pi pi-arrow-left" label="Meus Pedidos" className="p-button-text p-button-secondary back-button" onClick={() => navigate('/orders')} />
           <h1 className="order-title">Detalhes do Pedido</h1>
           <div className="order-meta">
             <span>Pedido #{order.id}</span>
             <span className="separator">|</span>
-            <span>Feito em {formatDate(order.orderDate)}</span>
+            <span>Feito em {formatDate((order as any).orderDate || order.createdAt)}</span>
             <span className="separator">|</span>
             <span className={`status status-${order.status}`}>{getStatusLabel(order.status)}</span>
           </div>
         </div>
-        
+
         <div className="order-content-grid">
           <div className="order-items-section">
             <div className="section-header">
               <h2 className="section-title">Itens do Pedido ({totalItems})</h2>
-              <Button 
-                label="Comprar novamente" 
-                icon="pi pi-replay"
-                className="buy-again-button"
-                onClick={handleBuyAgain}
-              />
+              <Button label="Comprar novamente" icon="pi pi-replay" className="buy-again-button" onClick={handleBuyAgain} />
             </div>
 
             {order.items?.map((item: IOrderItem) => (
-              <Link to={`/product/${(item.product as any).id}`} key={item.id} className="order-item-card-link">
+              <Link to={`/product/${(item.product as any).id}`} key={(item as any).id} className="order-item-card-link">
                 <div className="order-item-card">
-                  <img 
-                    src={(item.product as any)?.urlImagem || 'https://placehold.co/100x100/eee/333?text=Img'} 
-                    alt={(item.product as any)?.name || 'Imagem do produto'}
-                    className="item-image"
-                  />
+                  <img src={(item.product as any)?.urlImagem || 'https://placehold.co/100x100/eee/333?text=Img'} alt={(item.product as any)?.name || 'Imagem do produto'} className="item-image" />
                   <div className="item-details">
                     <p className="item-name">{(item.product as any)?.name || 'Produto indisponível'}</p>
                     <p className="item-price">{formatCurrency(item.price)}</p>
@@ -183,6 +159,33 @@ const OrderDetailPage = () => {
                 </div>
               </Link>
             ))}
+
+            {/* Attachments visible to customer */}
+            {attachments.length > 0 && (
+              <div className="details-card mt-4" style={{ marginTop: '1.5rem' }}>
+                <h3 className="card-title">Documentos do Pedido</h3>
+                <div className="card-content">
+                  {attachments.map((att) => (
+                    <div key={att.id} className="flex align-items-center justify-content-between py-2" style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <div className="flex align-items-center gap-2">
+                        <i className={`pi ${att.contentType?.includes('pdf') ? 'pi-file-pdf text-red-500' : 'pi-image text-blue-500'}`} style={{ fontSize: '1.2rem' }} />
+                        <div>
+                          <p className="m-0 text-sm font-medium text-900">{att.originalFileName}</p>
+                          {att.description && <p className="m-0 text-xs text-500">{att.description}</p>}
+                          <p className="m-0 text-xs text-400">{formatSize(att.fileSize)} · {new Date(att.uploadedAt).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                      </div>
+                      <Button
+                        icon="pi pi-download"
+                        className="p-button-rounded p-button-text p-button-sm"
+                        tooltip="Baixar"
+                        onClick={() => handleDownload(att)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="order-details-section">
@@ -190,8 +193,8 @@ const OrderDetailPage = () => {
               <div>
                 <h3 className="card-title">Endereço de Entrega</h3>
                 <div className="card-content">
-                  <p>{order.address?.street}, {order.address?.number} - {order.address?.neighborhood}, {order.address?.city} - {order.address?.state}</p>
-                  <p>CEP: {order.address?.zipCode}</p>
+                  <p>{(order as any).address?.street}, {(order as any).address?.number} - {(order as any).address?.neighborhood}, {(order as any).address?.city} - {(order as any).address?.state}</p>
+                  <p>CEP: {(order as any).address?.zipCode}</p>
                 </div>
               </div>
               <div className="card-separator"></div>

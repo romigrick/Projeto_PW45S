@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -53,19 +52,13 @@ const summaryCard = (
   bgColor: string,
   borderColor: string
 ) => (
-  <div
-    className="surface-card shadow-2 border-round p-3"
-    style={{ borderTop: `3px solid ${borderColor}` }}
-  >
+  <div className="surface-card shadow-2 border-round p-3" style={{ borderTop: `3px solid ${borderColor}` }}>
     <div className="flex align-items-center justify-content-between">
       <div>
         <span className="block text-500 font-medium mb-2 text-sm">{label}</span>
         <div className="font-bold text-3xl" style={{ color: iconColor }}>{value}</div>
       </div>
-      <div
-        className="w-3rem h-3rem border-round flex align-items-center justify-content-center"
-        style={{ backgroundColor: bgColor }}
-      >
+      <div className="w-3rem h-3rem border-round flex align-items-center justify-content-center" style={{ backgroundColor: bgColor }}>
         <i className={`pi ${iconClass} text-xl`} style={{ color: iconColor }} />
       </div>
     </div>
@@ -107,17 +100,12 @@ export const AdminDashboard = () => {
     .slice(0, 5);
 
   const statusTemplate = (rowData: IOrder) => (
-    <Tag
-      severity={STATUS_SEVERITY[rowData.status || '']}
-      value={STATUS_LABELS[rowData.status || ''] || rowData.status}
-    />
+    <Tag severity={STATUS_SEVERITY[rowData.status || '']} value={STATUS_LABELS[rowData.status || ''] || rowData.status} />
   );
 
   const dateTemplate = (rowData: IOrder) => {
     if (!rowData.createdAt) return '-';
-    return new Date(rowData.createdAt).toLocaleDateString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-    });
+    return new Date(rowData.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const totalTemplate = (rowData: IOrder) =>
@@ -125,85 +113,50 @@ export const AdminDashboard = () => {
 
   return (
     <div>
-      {/* Page title */}
       <div className="flex align-items-center justify-content-between mb-4">
         <h1 className="text-3xl font-bold text-900 m-0">Painel Administrativo</h1>
-        <Button
-          label="Ver todos pedidos"
-          icon="pi pi-list"
-          className="p-button-outlined"
-          onClick={() => navigate('/admin/orders')}
-        />
+        <Button label="Ver todos pedidos" icon="pi pi-list" className="p-button-outlined" onClick={() => navigate('/admin/orders')} />
       </div>
 
-      <div
-        className="mb-4"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}
-      >
+      {/* Top 4 summary cards */}
+      <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
         {summaryCard('Total de Pedidos', orders.length, 'pi-shopping-cart', '#3b82f6', '#dbeafe', '#3b82f6')}
-        {summaryCard(
-          'Receita (Pago/Concluído)',
-          `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`,
-          'pi-dollar', '#22c55e', '#dcfce7', '#22c55e'
-        )}
+        {summaryCard('Receita (Pago/Concluído)', `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`, 'pi-dollar', '#22c55e', '#dcfce7', '#22c55e')}
         {summaryCard('Aguardando Pagamento', statusCount['AGUARDANDO_PAGAMENTO'] || 0, 'pi-clock', '#f59e0b', '#fef3c7', '#f59e0b')}
         {summaryCard('Em Transporte', statusCount['EM_TRANSPORTE'] || 0, 'pi-truck', '#06b6d4', '#cffafe', '#06b6d4')}
       </div>
 
-      <div
-        className="mb-4"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 2fr)', gap: '1rem' }}
-      >
+      {/* Status breakdown — clicks filter orders page */}
+      <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '1rem' }}>
         {Object.entries(STATUS_LABELS).map(([status, label]) => (
           <div
             key={status}
             className="surface-card shadow-2 border-round p-3 text-center cursor-pointer hover:surface-100 transition-colors transition-duration-150"
-            onClick={() => navigate('/admin/orders')}
+            onClick={() => navigate(`/admin/orders?status=${status}`)}
             style={{ borderTop: `3px solid ${STATUS_COLORS[status]}` }}
           >
-            <i
-              className={`pi ${STATUS_ICONS[status]} text-xl mb-2 block`}
-              style={{ color: STATUS_COLORS[status] }}
-            />
+            <i className={`pi ${STATUS_ICONS[status]} text-xl mb-2 block`} style={{ color: STATUS_COLORS[status] }} />
             <span className="block text-500 text-xs mb-1">{label}</span>
             <span className="block font-bold text-2xl text-900">{statusCount[status] || 0}</span>
           </div>
         ))}
       </div>
 
+      {/* Recent orders */}
       <div className="surface-card shadow-2 border-round p-3">
         <div className="flex align-items-center justify-content-between mb-3">
           <h3 className="m-0 text-800 font-semibold">Pedidos Recentes</h3>
-          <Button
-            label="Ver todos"
-            icon="pi pi-arrow-right"
-            iconPos="right"
-            className="p-button-text p-button-sm"
-            onClick={() => navigate('/admin/orders')}
-          />
+          <Button label="Ver todos" icon="pi pi-arrow-right" iconPos="right" className="p-button-text p-button-sm" onClick={() => navigate('/admin/orders')} />
         </div>
-        <DataTable
-          value={recentOrders}
-          className="p-datatable-sm"
-          emptyMessage="Nenhum pedido encontrado."
-          stripedRows
-        >
+        <DataTable value={recentOrders} className="p-datatable-sm" emptyMessage="Nenhum pedido encontrado." stripedRows>
           <Column field="id" header="# Pedido" style={{ width: '8rem' }} />
           <Column header="Data" body={dateTemplate} />
           <Column field="paymentMethod" header="Pagamento" />
           <Column header="Total" body={totalTemplate} />
           <Column header="Status" body={statusTemplate} />
-          <Column
-            header=""
-            body={(row: IOrder) => (
-              <Button
-                icon="pi pi-eye"
-                className="p-button-rounded p-button-text p-button-sm"
-                onClick={() => navigate(`/admin/orders/${row.id}`)}
-              />
-            )}
-            style={{ width: '4rem' }}
-          />
+          <Column header="" body={(row: IOrder) => (
+            <Button icon="pi pi-eye" className="p-button-rounded p-button-text p-button-sm" onClick={() => navigate(`/admin/orders/${row.id}`)} />
+          )} style={{ width: '4rem' }} />
         </DataTable>
       </div>
     </div>

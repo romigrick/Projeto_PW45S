@@ -8,6 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { InputText } from 'primereact/inputtext';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import UserService from '../../services/userService';
 import type { IUser } from '../../commons/types';
 
@@ -30,7 +31,7 @@ export const AdminUsersPage = () => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
-  const [selectedRole, setSelectedRole] = useState('ROLE_USER');
+  const [selectedRole, setSelectedRole] = useState('ROLE_CLIENTE');
   const [saving, setSaving] = useState(false);
   const toast = useRef<Toast>(null);
 
@@ -39,18 +40,14 @@ export const AdminUsersPage = () => {
   const fetchUsers = async () => {
     setLoading(true);
     const response = await UserService.getAllUsers();
-    if (response.success) {
-      setUsers(response.data || []);
-    } else {
-      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar usuários', life: 3000 });
-    }
+    if (response.success) setUsers(response.data || []);
+    else toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar usuários', life: 3000 });
     setLoading(false);
   };
 
   const openDialog = (user: IUser) => {
     setSelectedUser(user);
-    // roles é Set<string> serializado como array pelo Jackson
-    const currentRole = Array.from(user.roles || [])[0] || 'ROLE_USER';
+    const currentRole = Array.from(user.roles || [])[0] || 'ROLE_CLIENTE';
     setSelectedRole(currentRole);
     setDialogVisible(true);
   };
@@ -60,12 +57,7 @@ export const AdminUsersPage = () => {
     setSaving(true);
     const response = await UserService.activateUser(selectedUser.id, selectedRole);
     if (response.success) {
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Sucesso',
-        detail: selectedUser.active ? 'Perfil atualizado!' : 'Usuário ativado com sucesso!',
-        life: 3000,
-      });
+      toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: selectedUser.active ? 'Perfil atualizado!' : 'Usuário ativado com sucesso!', life: 3000 });
       setDialogVisible(false);
       fetchUsers();
     } else {
@@ -74,10 +66,28 @@ export const AdminUsersPage = () => {
     setSaving(false);
   };
 
-  // ── Templates ──────────────────────────────────────────────────────────────
+  const handleDeactivate = (user: IUser) => {
+    confirmDialog({
+      message: `Desativar o usuário "${user.displayName}"? Ele não conseguirá mais fazer login.`,
+      header: 'Confirmar Desativação',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Desativar',
+      rejectLabel: 'Cancelar',
+      acceptClassName: 'p-button-danger',
+      accept: async () => {
+        const response = await UserService.deactivateUser(user.id!);
+        if (response.success) {
+          toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Usuário desativado.', life: 3000 });
+          fetchUsers();
+        } else {
+          toast.current?.show({ severity: 'error', summary: 'Erro', detail: response.message || 'Falha ao desativar', life: 3000 });
+        }
+      },
+    });
+  };
 
   const statusTemplate = (row: IUser) => (
-    <Tag severity={row.active ? 'success' : 'warning'} value={row.active ? 'Ativo' : 'Inativo'} />
+    <Tag severity={row.active ? 'success' : 'danger'} value={row.active ? 'Ativo' : 'Inativo'} />
   );
 
   const roleTemplate = (row: IUser) => {
@@ -86,34 +96,35 @@ export const AdminUsersPage = () => {
     return (
       <div className="flex gap-1 flex-wrap">
         {roles.map((r) => (
-          <Tag
-            key={r}
-            value={roleLabel(r)}
-            severity={r === 'ROLE_ADMIN' ? 'danger' : r === 'ROLE_OPERATOR' ? 'warning' : 'info'}
-          />
+          <Tag key={r} value={roleLabel(r)} severity={r === 'ROLE_ADMIN' ? 'danger' : r === 'ROLE_OPERATOR' ? 'warning' : 'info'} />
         ))}
       </div>
     );
   };
 
   const actionsTemplate = (row: IUser) => (
-    <Button
-      icon={row.active ? 'pi pi-pencil' : 'pi pi-user-plus'}
-      label={row.active ? 'Editar perfil' : 'Ativar'}
-      className="p-button-sm p-button-outlined"
-      severity={row.active ? undefined : 'success'}
-      onClick={() => openDialog(row)}
-    />
+    <div className="flex gap-2">
+      <Button
+        icon={row.active ? 'pi pi-pencil' : 'pi pi-user-plus'}
+        label={row.active ? 'Editar' : 'Ativar'}
+        className="p-button-sm p-button-outlined"
+        severity={row.active ? undefined : 'success'}
+        onClick={() => openDialog(row)}
+      />
+      {row.active && (
+        <Button
+          icon="pi pi-ban"
+          label="Desativar"
+          className="p-button-sm p-button-outlined p-button-danger"
+          onClick={() => handleDeactivate(row)}
+        />
+      )}
+    </div>
   );
-
-  // ── Filtro ─────────────────────────────────────────────────────────────────
 
   const q = globalFilter.toLowerCase();
   const filteredUsers = users.filter((u) =>
-    !q ||
-    u.displayName?.toLowerCase().includes(q) ||
-    u.username?.toLowerCase().includes(q) ||
-    u.email?.toLowerCase().includes(q)
+    !q || u.displayName?.toLowerCase().includes(q) || u.username?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
   );
 
   const header = (
@@ -122,11 +133,7 @@ export const AdminUsersPage = () => {
       <div className="flex gap-2 align-items-center">
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
-          <InputText
-            placeholder="Buscar por nome, e-mail..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-          />
+          <InputText placeholder="Buscar por nome, e-mail..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} />
         </span>
         <Button icon="pi pi-refresh" className="p-button-outlined" tooltip="Atualizar" onClick={fetchUsers} />
       </div>
@@ -142,16 +149,14 @@ export const AdminUsersPage = () => {
   }
 
   const totalActive = users.filter((u) => u.active).length;
-  const totalPending = users.filter((u) => !u.active).length;
+  const totalInactive = users.filter((u) => !u.active).length;
 
   return (
     <div>
       <Toast ref={toast} />
+      <ConfirmDialog />
 
-      <div
-        className="mb-4"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}
-      >
+      <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
         <div className="surface-card shadow-2 border-round p-3 text-center" style={{ borderTop: '3px solid #3b82f6' }}>
           <span className="block text-500 text-sm mb-1">Total de Usuários</span>
           <span className="block font-bold text-3xl text-900">{users.length}</span>
@@ -160,31 +165,22 @@ export const AdminUsersPage = () => {
           <span className="block text-500 text-sm mb-1">Ativos</span>
           <span className="block font-bold text-3xl text-green-600">{totalActive}</span>
         </div>
-        <div className="surface-card shadow-2 border-round p-3 text-center" style={{ borderTop: '3px solid #f59e0b' }}>
-          <span className="block text-500 text-sm mb-1">Aguardando Ativação</span>
-          <span className="block font-bold text-3xl text-orange-500">{totalPending}</span>
+        {/* Changed: was "Aguardando Ativação", now shows Inativos */}
+        <div className="surface-card shadow-2 border-round p-3 text-center" style={{ borderTop: '3px solid #ef4444' }}>
+          <span className="block text-500 text-sm mb-1">Inativos</span>
+          <span className="block font-bold text-3xl text-red-500">{totalInactive}</span>
         </div>
       </div>
 
       <div className="surface-card shadow-2 border-round p-3">
-        <DataTable
-          value={filteredUsers}
-          header={header}
-          paginator
-          rows={10}
-          rowsPerPageOptions={[5, 10, 25]}
-          emptyMessage="Nenhum usuário encontrado."
-          stripedRows
-          responsiveLayout="scroll"
-          className="p-datatable-sm"
-        >
+        <DataTable value={filteredUsers} header={header} paginator rows={10} rowsPerPageOptions={[5, 10, 25]} emptyMessage="Nenhum usuário encontrado." stripedRows responsiveLayout="scroll" className="p-datatable-sm">
           <Column field="id" header="ID" sortable style={{ width: '5rem' }} />
           <Column field="displayName" header="Nome" sortable />
           <Column field="username" header="Usuário" sortable />
           <Column field="email" header="E-mail" sortable />
           <Column header="Perfil" body={roleTemplate} />
           <Column header="Status" body={statusTemplate} sortable sortField="active" />
-          <Column header="Ações" body={actionsTemplate} style={{ width: '12rem' }} />
+          <Column header="Ações" body={actionsTemplate} style={{ width: '16rem' }} />
         </DataTable>
       </div>
 
@@ -197,12 +193,7 @@ export const AdminUsersPage = () => {
         footer={
           <div className="flex justify-content-end gap-2">
             <Button label="Cancelar" icon="pi pi-times" className="p-button-text" onClick={() => setDialogVisible(false)} />
-            <Button
-              label={selectedUser?.active ? 'Salvar' : 'Ativar'}
-              icon="pi pi-check"
-              loading={saving}
-              onClick={handleSave}
-            />
+            <Button label={selectedUser?.active ? 'Salvar' : 'Ativar'} icon="pi pi-check" loading={saving} onClick={handleSave} />
           </div>
         }
       >
@@ -210,17 +201,10 @@ export const AdminUsersPage = () => {
           <div className="mb-3 p-3 surface-50 border-round border-1 border-200">
             <p className="m-0 text-700 text-sm"><strong>Nome:</strong> {selectedUser?.displayName}</p>
             <p className="m-0 mt-1 text-700 text-sm"><strong>Usuário:</strong> {selectedUser?.username}</p>
-            {selectedUser?.email && (
-              <p className="m-0 mt-1 text-700 text-sm"><strong>E-mail:</strong> {selectedUser.email}</p>
-            )}
+            {selectedUser?.email && <p className="m-0 mt-1 text-700 text-sm"><strong>E-mail:</strong> {selectedUser.email}</p>}
           </div>
           <label className="block text-700 font-medium mb-2">Perfil de acesso</label>
-          <Dropdown
-            value={selectedRole}
-            options={ROLE_OPTIONS}
-            onChange={(e) => setSelectedRole(e.value)}
-            className="w-full"
-          />
+          <Dropdown value={selectedRole} options={ROLE_OPTIONS} onChange={(e) => setSelectedRole(e.value)} className="w-full" />
           {!selectedUser?.active && (
             <p className="text-500 text-sm mt-3 mb-0">
               <i className="pi pi-info-circle mr-1" />

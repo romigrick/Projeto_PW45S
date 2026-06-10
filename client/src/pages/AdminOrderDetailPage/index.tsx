@@ -42,11 +42,21 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELADO: 'Cancelado',
 };
 
+const STATUS_COLORS: Record<string, string> = {
+  AGUARDANDO_PAGAMENTO: '#f59e0b',
+  PAGO: '#22c55e',
+  EM_PREPARACAO: '#8b5cf6',
+  EM_TRANSPORTE: '#3b82f6',
+  CONCLUIDO: '#10b981',
+  CANCELADO: '#ef4444',
+};
+
 export const AdminOrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const fileUploadRef = useRef<any>(null);
+  const transportFileRef = useRef<any>(null);
 
   const [order, setOrder] = useState<IOrder | null>(null);
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
@@ -57,6 +67,8 @@ export const AdminOrderDetailPage = () => {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [attachDescription, setAttachDescription] = useState('');
+  // For the "Em Transporte" inline attach
+  const [transportFile, setTransportFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (id) fetchOrderData(Number(id));
@@ -85,6 +97,10 @@ export const AdminOrderDetailPage = () => {
       toast.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Selecione um status diferente', life: 3000 });
       return;
     }
+    if (selectedStatus === 'EM_TRANSPORTE' && !transportFile) {
+      toast.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Anexe a nota fiscal antes de enviar para transporte.', life: 4000 });
+      return;
+    }
     confirmDialog({
       message: `Alterar status para "${STATUS_LABELS[selectedStatus]}"?`,
       header: 'Confirmar Alteração',
@@ -93,6 +109,12 @@ export const AdminOrderDetailPage = () => {
       rejectLabel: 'Cancelar',
       accept: async () => {
         setUpdatingStatus(true);
+        // If EM_TRANSPORTE, upload nota fiscal first
+        if (selectedStatus === 'EM_TRANSPORTE' && transportFile) {
+          await OrderService.uploadAttachment(Number(id), transportFile, 'Nota Fiscal');
+          setTransportFile(null);
+          transportFileRef.current?.clear();
+        }
         const response = await OrderService.updateOrderStatus(Number(id), selectedStatus, observation || undefined);
         if (response.success) {
           toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Status atualizado! E-mail enviado ao cliente.', life: 4000 });
@@ -129,10 +151,7 @@ export const AdminOrderDetailPage = () => {
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    });
+    return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   const formatSize = (bytes?: number) => {
@@ -143,28 +162,19 @@ export const AdminOrderDetailPage = () => {
   };
 
   const fileIconTemplate = (rowData: IAttachment) => (
-    <i
-      className={`pi ${rowData.contentType?.includes('pdf') ? 'pi-file-pdf text-red-500' : 'pi-image text-blue-500'}`}
-      style={{ fontSize: '1.4rem' }}
-    />
+    <i className={`pi ${rowData.contentType?.includes('pdf') ? 'pi-file-pdf text-red-500' : 'pi-image text-blue-500'}`} style={{ fontSize: '1.4rem' }} />
   );
 
   const fileActionsTemplate = (rowData: IAttachment) => (
-    <Button
-      icon="pi pi-download"
-      className="p-button-rounded p-button-text p-button-sm"
-      tooltip="Baixar arquivo"
-      tooltipOptions={{ position: 'top' }}
-      onClick={() => handleDownload(rowData)}
-    />
+    <Button icon="pi pi-download" className="p-button-rounded p-button-text p-button-sm" tooltip="Baixar arquivo" tooltipOptions={{ position: 'top' }} onClick={() => handleDownload(rowData)} />
   );
 
-  const timelineEvents = history.map((h) => ({
+  const timelineEvents = [...history].reverse().map((h) => ({
     label: `${STATUS_LABELS[h.previousStatus || ''] || h.previousStatus || 'Início'} → ${STATUS_LABELS[h.newStatus] || h.newStatus}`,
     date: formatDate(h.changedAt),
     by: h.changedBy || 'sistema',
     obs: h.observation,
-    color: h.newStatus === 'CANCELADO' ? '#ef4444' : h.newStatus === 'CONCLUIDO' ? '#22c55e' : '#3b82f6',
+    color: STATUS_COLORS[h.newStatus] || '#3b82f6',
   }));
 
   if (loading) {
@@ -184,6 +194,10 @@ export const AdminOrderDetailPage = () => {
     );
   }
 
+  // Pull customer/address info from order (backend populates these in the response)
+  const addr = (order as any).address;
+  const customer = (order as any).customer || (order as any).user;
+
   return (
     <div>
       <Toast ref={toast} />
@@ -192,7 +206,7 @@ export const AdminOrderDetailPage = () => {
       {/* Page header */}
       <div className="flex align-items-center justify-content-between mb-4">
         <div className="flex align-items-center gap-3">
-          <Button icon="pi pi-arrow-left" className="p-button-text p-button-rounded" onClick={() => navigate('/admin/dashboard')} />
+          <Button icon="pi pi-arrow-left" className="p-button-text p-button-rounded" onClick={() => navigate('/admin/orders')} />
           <div>
             <h2 className="m-0 text-900 font-bold text-2xl">Pedido #{order.id}</h2>
             <span className="text-500 text-sm">{formatDate(order.createdAt)}</span>
@@ -210,6 +224,34 @@ export const AdminOrderDetailPage = () => {
 
         {/* ── Left column ── */}
         <div>
+
+          {/* Customer + Address info */}
+          <div className="surface-card shadow-2 border-round p-4 mb-4">
+            <h3 className="mt-0 mb-3 text-800 font-semibold">Dados do Cliente</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <p className="text-500 text-sm mb-1">Nome</p>
+                <p className="font-medium text-900 m-0">{customer?.displayName || customer?.name || '-'}</p>
+              </div>
+              <div>
+                <p className="text-500 text-sm mb-1">E-mail</p>
+                <p className="font-medium text-900 m-0">{customer?.email || customer?.username || '-'}</p>
+              </div>
+            </div>
+
+            {addr && (
+              <>
+                <Divider />
+                <h4 className="mt-0 mb-2 text-700">Endereço de Entrega</h4>
+                <p className="m-0 text-900">
+                  {[addr.street, addr.number && `nº ${addr.number}`, addr.neighborhood, addr.complement].filter(Boolean).join(', ')}
+                </p>
+                <p className="m-0 text-900">{[addr.city, addr.state].filter(Boolean).join(' - ')}</p>
+                {addr.zipCode && <p className="m-0 text-500 text-sm mt-1">CEP: {addr.zipCode}</p>}
+              </>
+            )}
+          </div>
+
           {/* Order info */}
           <div className="surface-card shadow-2 border-round p-4 mb-4">
             <h3 className="mt-0 mb-3 text-800 font-semibold">Informações do Pedido</h3>
@@ -236,8 +278,9 @@ export const AdminOrderDetailPage = () => {
                 <h4 className="mb-2 text-700">Itens do Pedido</h4>
                 <DataTable value={order.items} className="p-datatable-sm" stripedRows>
                   <Column field="product.id" header="Produto ID" />
+                  <Column body={(item: any) => item.product?.name || item.product?.id || '-'} header="Produto" />
                   <Column field="quantity" header="Qtd" />
-                  <Column header="Preço Unit." body={(item: any) => item.price ? `R$ ${item.price.toFixed(2).replace('.', ',')}` : '-'} />
+                  <Column header="Preço Unit." body={(item: any) => item.price ? `R$ ${Number(item.price).toFixed(2).replace('.', ',')}` : '-'} />
                   <Column header="Subtotal" body={(item: any) => item.price && item.quantity ? `R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}` : '-'} />
                 </DataTable>
               </>
@@ -249,13 +292,7 @@ export const AdminOrderDetailPage = () => {
             <h3 className="mt-0 mb-3 text-800 font-semibold">Anexos</h3>
             <div className="mb-3">
               <label className="block text-700 text-sm mb-1">Descrição do arquivo (opcional)</label>
-              <InputTextarea
-                value={attachDescription}
-                onChange={(e) => setAttachDescription(e.target.value)}
-                rows={2}
-                placeholder="Ex: Nota fiscal, comprovante de pagamento..."
-                className="w-full"
-              />
+              <InputTextarea value={attachDescription} onChange={(e) => setAttachDescription(e.target.value)} rows={2} placeholder="Ex: Nota fiscal, comprovante de pagamento..." className="w-full" />
             </div>
             <FileUpload
               ref={fileUploadRef}
@@ -300,14 +337,34 @@ export const AdminOrderDetailPage = () => {
               placeholder="Selecionar status"
               className="w-full mb-3"
             />
+
+            {/* Nota fiscal obrigatória quando status = EM_TRANSPORTE */}
+            {selectedStatus === 'EM_TRANSPORTE' && (
+              <div className="mb-3 p-3 border-round border-1 border-blue-200" style={{ backgroundColor: '#eff6ff' }}>
+                <label className="block text-700 text-sm font-medium mb-2">
+                  <i className="pi pi-file-pdf mr-1 text-blue-600" />
+                  Nota Fiscal <span className="text-red-500">*</span>
+                </label>
+                <p className="text-500 text-xs mt-0 mb-2">Obrigatório para enviar ao transporte.</p>
+                <FileUpload
+                  ref={transportFileRef}
+                  mode="basic"
+                  name="notaFiscal"
+                  accept=".pdf"
+                  maxFileSize={10_000_000}
+                  customUpload
+                  uploadHandler={() => {}}
+                  chooseLabel={transportFile ? `✓ ${transportFile.name}` : 'Selecionar PDF'}
+                  auto={false}
+                  onSelect={(e) => setTransportFile(e.files[0])}
+                  onClear={() => setTransportFile(null)}
+                  className="w-full"
+                />
+              </div>
+            )}
+
             <label className="block text-700 text-sm mb-1">Observação (opcional)</label>
-            <InputTextarea
-              value={observation}
-              onChange={(e) => setObservation(e.target.value)}
-              rows={3}
-              placeholder="Motivo da alteração..."
-              className="w-full mb-3"
-            />
+            <InputTextarea value={observation} onChange={(e) => setObservation(e.target.value)} rows={3} placeholder="Motivo da alteração..." className="w-full mb-3" />
             <Button
               label="Atualizar Status"
               icon="pi pi-check"
@@ -326,21 +383,13 @@ export const AdminOrderDetailPage = () => {
           <div className="surface-card shadow-2 border-round p-4">
             <h3 className="mt-0 mb-3 text-800 font-semibold">
               Histórico de Status
-              {history.length > 0 && (
-                <span className="ml-2 text-500 text-sm font-normal">({history.length} alterações)</span>
-              )}
+              {history.length > 0 && <span className="ml-2 text-500 text-sm font-normal">({history.length})</span>}
             </h3>
             {timelineEvents.length > 0 ? (
               <Timeline
                 value={timelineEvents}
-                content={(item) => (
-                  <div className="mb-3">
-                    <p className="font-semibold text-900 m-0 text-sm">{item.label}</p>
-                    <small className="text-500 block">{item.date}</small>
-                    <small className="text-400 block">por {item.by}</small>
-                    {item.obs && <small className="text-600 block mt-1 font-italic">"{item.obs}"</small>}
-                  </div>
-                )}
+                align="left"
+                className="w-full"
                 marker={(item) => (
                   <span
                     className="flex w-2rem h-2rem align-items-center justify-content-center border-circle flex-shrink-0"
@@ -348,6 +397,14 @@ export const AdminOrderDetailPage = () => {
                   >
                     <i className="pi pi-check text-white text-xs" />
                   </span>
+                )}
+                content={(item) => (
+                  <div className="ml-2 mb-3">
+                    <p className="font-semibold text-900 m-0 text-sm">{item.label}</p>
+                    <small className="text-500 block">{item.date}</small>
+                    <small className="text-400 block">por {item.by}</small>
+                    {item.obs && <small className="text-600 block mt-1 font-italic">"{item.obs}"</small>}
+                  </div>
                 )}
               />
             ) : (

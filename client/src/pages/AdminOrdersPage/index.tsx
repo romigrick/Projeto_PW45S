@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -31,9 +31,9 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELADO: 'Cancelado',
 };
 
-const STATUS_SEVERITY: Record<string, "success" | "info" | "warning" | "danger" | "help" | "secondary" | undefined> = {
+const STATUS_SEVERITY: Record<string, 'warning' | 'success' | 'info' | 'danger' | 'help' | 'secondary' | undefined> = {
   AGUARDANDO_PAGAMENTO: 'warning',
-  PAGO: 'info',
+  PAGO: 'success',
   EM_PREPARACAO: 'help',
   EM_TRANSPORTE: 'info',
   CONCLUIDO: 'success',
@@ -44,74 +44,65 @@ export const AdminOrdersPage = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState<Date | null>(null);
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
 
+  // Read ?status= from URL (set by dashboard cards)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
+
+  useEffect(() => { fetchOrders(); }, []);
+
+  // Sync URL param → filter on first load
   useEffect(() => {
-    fetchOrders();
+    const s = searchParams.get('status');
+    if (s) setStatusFilter(s);
   }, []);
 
   const fetchOrders = async () => {
     setLoading(true);
     const response = await OrderService.getAllOrders();
     if (response.success) {
-      setOrders(response.data || []);
+      // getAllOrders may return Page<> or plain array
+      const raw = response.data;
+      setOrders(Array.isArray(raw) ? raw : raw?.content ?? []);
     } else {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Erro',
-        detail: 'Falha ao carregar pedidos',
-        life: 3000,
-      });
+      toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar pedidos', life: 3000 });
     }
     setLoading(false);
   };
 
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    if (value) setSearchParams({ status: value });
+    else setSearchParams({});
+  };
+
   const statusTemplate = (rowData: IOrder) => {
     const status = rowData.status || 'UNKNOWN';
-    return (
-      <Tag
-        severity={STATUS_SEVERITY[status]}
-        value={STATUS_LABELS[status] || status}
-      />
-    );
+    return <Tag severity={STATUS_SEVERITY[status]} value={STATUS_LABELS[status] || status} />;
   };
 
   const dateTemplate = (rowData: IOrder) => {
     if (!rowData.createdAt) return '-';
-    return new Date(rowData.createdAt).toLocaleDateString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    });
+    return new Date(rowData.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
-  const totalTemplate = (rowData: IOrder) => {
-    return rowData.total
-      ? `R$ ${rowData.total.toFixed(2).replace('.', ',')}`
-      : '-';
-  };
+  const totalTemplate = (rowData: IOrder) =>
+    rowData.total ? `R$ ${rowData.total.toFixed(2).replace('.', ',')}` : '-';
 
   const actionsTemplate = (rowData: IOrder) => (
-    <Button
-      icon="pi pi-eye"
-      className="p-button-rounded p-button-text p-button-info"
-      tooltip="Ver detalhes"
-      tooltipOptions={{ position: 'top' }}
-      onClick={() => navigate(`/admin/orders/${rowData.id}`)}
-    />
+    <Button icon="pi pi-eye" className="p-button-rounded p-button-text p-button-info" tooltip="Ver detalhes" tooltipOptions={{ position: 'top' }} onClick={() => navigate(`/admin/orders/${rowData.id}`)} />
   );
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = statusFilter ? order.status === statusFilter : true;
     const matchesSearch = globalFilter
-      ? String(order.id).includes(globalFilter) ||
-      (order.paymentMethod || '').toLowerCase().includes(globalFilter.toLowerCase())
+      ? String(order.id).includes(globalFilter) || (order.paymentMethod || '').toLowerCase().includes(globalFilter.toLowerCase())
       : true;
     const matchesDate = dateFilter
-      ? order.createdAt &&
-      new Date(order.createdAt).toDateString() === dateFilter.toDateString()
+      ? order.createdAt && new Date(order.createdAt).toDateString() === dateFilter.toDateString()
       : true;
     return matchesStatus && matchesSearch && matchesDate;
   });
@@ -122,34 +113,11 @@ export const AdminOrdersPage = () => {
       <div className="flex flex-wrap gap-2 align-items-center">
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
-          <InputText
-            placeholder="Buscar..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-full md:w-auto"
-          />
+          <InputText placeholder="Buscar..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} />
         </span>
-        <Dropdown
-          value={statusFilter}
-          options={STATUS_OPTIONS}
-          onChange={(e) => setStatusFilter(e.value)}
-          placeholder="Filtrar status"
-          className="w-full md:w-auto"
-        />
-        <Calendar
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.value as Date | null)}
-          placeholder="Filtrar data"
-          dateFormat="dd/mm/yy"
-          showClear
-          className="w-full md:w-auto"
-        />
-        <Button
-          icon="pi pi-refresh"
-          className="p-button-outlined"
-          tooltip="Atualizar"
-          onClick={fetchOrders}
-        />
+        <Dropdown value={statusFilter} options={STATUS_OPTIONS} onChange={(e) => handleStatusFilterChange(e.value)} placeholder="Filtrar status" />
+        <Calendar value={dateFilter} onChange={(e) => setDateFilter(e.value as Date | null)} placeholder="Filtrar data" dateFormat="dd/mm/yy" showClear />
+        <Button icon="pi pi-refresh" className="p-button-outlined" tooltip="Atualizar" onClick={fetchOrders} />
       </div>
     </div>
   );
