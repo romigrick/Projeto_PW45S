@@ -330,7 +330,7 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
     }
 
     @GetMapping("/{id}/attachments/{attachmentId}/download")
-    public ResponseEntity<org.springframework.core.io.InputStreamResource> downloadAttachment(
+            public ResponseEntity<InputStreamResource> downloadAttachment(
             @PathVariable Long id,
             @PathVariable Long attachmentId,
             Authentication authentication) {
@@ -361,7 +361,7 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + attachment.getOriginalFileName() + "\"")
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
-                .body(new org.springframework.core.io.InputStreamResource(stream));
+                .body(new InputStreamResource(stream));
     }
 
     //
