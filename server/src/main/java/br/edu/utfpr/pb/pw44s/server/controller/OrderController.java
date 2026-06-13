@@ -13,7 +13,7 @@ import br.edu.utfpr.pb.pw44s.server.repository.UserRepository;
 import br.edu.utfpr.pb.pw44s.server.service.EmailService;
 import br.edu.utfpr.pb.pw44s.server.service.ICrudService;
 import br.edu.utfpr.pb.pw44s.server.service.IOrderService;
-import cn.hutool.core.io.resource.InputStreamResource;
+import org.springframework.core.io.InputStreamResource;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
@@ -330,7 +330,7 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
     }
 
     @GetMapping("/{id}/attachments/{attachmentId}/download")
-    public ResponseEntity<InputStreamResource> downloadAttachment(
+    public ResponseEntity<org.springframework.core.io.InputStreamResource> downloadAttachment(
             @PathVariable Long id,
             @PathVariable Long attachmentId,
             Authentication authentication) {
@@ -361,7 +361,7 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + attachment.getOriginalFileName() + "\"")
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
-                .body(new InputStreamResource(stream));
+                .body(new org.springframework.core.io.InputStreamResource(stream));
     }
 
     //
