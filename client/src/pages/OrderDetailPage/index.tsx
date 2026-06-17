@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import OrderService from '../../services/orderService';
-import type { IOrder, IOrderItem, IAttachment } from '../../commons/types';
+import type { IOrder, IOrderItem, IAttachment, IOrderStatusHistory } from '../../commons/types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useCart } from '../../context/CartContext';
 import { Button } from 'primereact/button';
+import { Timeline } from 'primereact/timeline';
 import './styles.css';
 import { calculateShipping } from '../../lib/shipping';
 
@@ -18,11 +19,21 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELADO: 'Cancelado',
 };
 
+const STATUS_COLORS: Record<string, string> = {
+  AGUARDANDO_PAGAMENTO: '#f59e0b',
+  PAGO: '#22c55e',
+  EM_PREPARACAO: '#8b5cf6',
+  EM_TRANSPORTE: '#3b82f6',
+  CONCLUIDO: '#10b981',
+  CANCELADO: '#ef4444',
+};
+
 const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [order, setOrder] = useState<IOrder | null>(null);
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const [history, setHistory] = useState<IOrderStatusHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
@@ -31,9 +42,10 @@ const OrderDetailPage = () => {
     if (!id) { setError('ID do pedido não fornecido.'); setLoading(false); return; }
     const fetchOrder = async () => {
       try {
-        const [orderRes, attachRes] = await Promise.all([
+        const [orderRes, attachRes, historyRes] = await Promise.all([
           OrderService.getOrderById(Number(id)),
           OrderService.getAttachments(Number(id)),
+          OrderService.getOrderHistory(Number(id)),
         ]);
         if (orderRes.success && orderRes.data) {
           setOrder(orderRes.data as IOrder);
@@ -41,6 +53,7 @@ const OrderDetailPage = () => {
           setError(orderRes.message || 'Erro ao buscar detalhes do pedido.');
         }
         if (attachRes.success) setAttachments(attachRes.data || []);
+        if (historyRes.success) setHistory(historyRes.data || []);
       } catch (err) {
         setError('Ocorreu um erro ao buscar os detalhes do seu pedido.');
       } finally {
@@ -55,6 +68,11 @@ const OrderDetailPage = () => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return 'Data inválida';
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const formatDateTime = (dateString: string | undefined) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   const formatCurrency = (value: number | undefined) => {
@@ -85,11 +103,18 @@ const OrderDetailPage = () => {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const timelineEvents = [...history].reverse().map((h) => ({
+    label: `${STATUS_LABELS[h.previousStatus || ''] || h.previousStatus || 'Início'} → ${STATUS_LABELS[h.newStatus] || h.newStatus}`,
+    date: formatDateTime(h.changedAt),
+    obs: h.observation,
+    color: STATUS_COLORS[h.newStatus] || '#3b82f6',
+  }));
+
   if (loading) {
     return (
       <div className="flex flex-column min-h-screen">
         <Header />
-        <div className="flex-grow flex justify-center items-center">
+        <div className="loading-error-container">
           <div className="text-center">
             <i className="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
             <p>Carregando detalhes do pedido...</p>
@@ -104,7 +129,7 @@ const OrderDetailPage = () => {
     return (
       <div className="flex flex-column min-h-screen">
         <Header />
-        <div className="flex-grow flex justify-center items-center">
+        <div className="loading-error-container">
           <div className="text-center">
             <i className="pi pi-exclamation-triangle text-4xl text-red-500 mb-3"></i>
             <p className="text-red-500">{error || 'Pedido não encontrado.'}</p>
@@ -131,7 +156,7 @@ const OrderDetailPage = () => {
           <div className="order-meta">
             <span>Pedido #{order.id}</span>
             <span className="separator">|</span>
-            <span>Feito em {formatDate((order as any).orderDate || order.createdAt)}</span>
+            <span>Feito em {formatDate((order as any).orderDate || (order as any).createdAt)}</span>
             <span className="separator">|</span>
             <span className={`status status-${order.status}`}>{getStatusLabel(order.status)}</span>
           </div>
@@ -160,9 +185,8 @@ const OrderDetailPage = () => {
               </Link>
             ))}
 
-            {/* Attachments visible to customer */}
             {attachments.length > 0 && (
-              <div className="details-card mt-4" style={{ marginTop: '1.5rem' }}>
+              <div className="details-card" style={{ marginTop: '1.5rem' }}>
                 <h3 className="card-title">Documentos do Pedido</h3>
                 <div className="card-content">
                   {attachments.map((att) => (
@@ -216,6 +240,32 @@ const OrderDetailPage = () => {
                 </div>
               </div>
             </div>
+
+            {timelineEvents.length > 0 && (
+              <div className="details-card">
+                <h3 className="card-title">Histórico do Pedido</h3>
+                <Timeline
+                  value={timelineEvents}
+                  align="left"
+                  className="w-full"
+                  marker={(item) => (
+                    <span
+                      className="flex w-2rem h-2rem align-items-center justify-content-center border-circle flex-shrink-0"
+                      style={{ backgroundColor: item.color }}
+                    >
+                      <i className="pi pi-check text-white text-xs" />
+                    </span>
+                  )}
+                  content={(item) => (
+                    <div className="ml-2 mb-3">
+                      <p className="font-semibold text-900 m-0 text-sm">{item.label}</p>
+                      <small className="text-500 block">{item.date}</small>
+                      {item.obs && <small className="text-600 block mt-1 font-italic">"{item.obs}"</small>}
+                    </div>
+                  )}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>

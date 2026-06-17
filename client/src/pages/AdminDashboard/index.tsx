@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
+import { Chart } from 'primereact/chart';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import OrderService from '../../services/orderService';
 import type { IOrder } from '../../commons/types';
+import { AdminPageHeader } from '@/components/AdminNavbar';
 
 const STATUS_SEVERITY: Record<string, 'warning' | 'success' | 'info' | 'danger' | undefined> = {
   AGUARDANDO_PAGAMENTO: 'warning',
@@ -26,15 +28,6 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELADO: 'Cancelado',
 };
 
-const STATUS_ICONS: Record<string, string> = {
-  AGUARDANDO_PAGAMENTO: 'pi-clock',
-  PAGO: 'pi-check-circle',
-  EM_PREPARACAO: 'pi-box',
-  EM_TRANSPORTE: 'pi-truck',
-  CONCLUIDO: 'pi-check',
-  CANCELADO: 'pi-times-circle',
-};
-
 const STATUS_COLORS: Record<string, string> = {
   AGUARDANDO_PAGAMENTO: '#f59e0b',
   PAGO: '#22c55e',
@@ -44,26 +37,60 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELADO: '#ef4444',
 };
 
-const summaryCard = (
-  label: string,
-  value: React.ReactNode,
-  iconClass: string,
-  iconColor: string,
-  bgColor: string,
-  borderColor: string
-) => (
-  <div className="surface-card shadow-2 border-round p-3" style={{ borderTop: `3px solid ${borderColor}` }}>
-    <div className="flex align-items-center justify-content-between">
-      <div>
-        <span className="block text-500 font-medium mb-2 text-sm">{label}</span>
-        <div className="font-bold text-3xl" style={{ color: iconColor }}>{value}</div>
-      </div>
-      <div className="w-3rem h-3rem border-round flex align-items-center justify-content-center" style={{ backgroundColor: bgColor }}>
-        <i className={`pi ${iconClass} text-xl`} style={{ color: iconColor }} />
-      </div>
-    </div>
-  </div>
-);
+const KPI_CARD_CONFIGS = [
+  {
+    key: 'total',
+    label: 'Total de Pedidos',
+    icon: 'pi-shopping-cart',
+    color: '#3b82f6',
+    bg: '#dbeafe',
+  },
+  {
+    key: 'revenue',
+    label: 'Receita Total',
+    icon: 'pi-dollar',
+    color: '#22c55e',
+    bg: '#dcfce7',
+  },
+  {
+    key: 'pending',
+    label: 'Aguardando Pagamento',
+    icon: 'pi-clock',
+    color: '#f59e0b',
+    bg: '#fef3c7',
+  },
+  {
+    key: 'shipping',
+    label: 'Em Transporte',
+    icon: 'pi-truck',
+    color: '#06b6d4',
+    bg: '#cffafe',
+  },
+];
+
+function formatCurrency(value: number) {
+  return `R$ ${value.toFixed(2).replace('.', ',')}`;
+}
+
+function getLast7DaysLabels(): string[] {
+  const labels: string[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+  }
+  return labels;
+}
+
+function getLast6MonthsLabels(): string[] {
+  const labels: string[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
+  }
+  return labels;
+}
 
 export const AdminDashboard = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -77,6 +104,177 @@ export const AdminDashboard = () => {
     });
   }, []);
 
+  const kpis = useMemo(() => {
+    const total = orders.length;
+    const revenue = orders
+      .filter((o) => o.status === 'PAGO' || o.status === 'CONCLUIDO')
+      .reduce((sum, o) => sum + (o.total || 0), 0);
+    const pending = orders.filter((o) => o.status === 'AGUARDANDO_PAGAMENTO').length;
+    const shipping = orders.filter((o) => o.status === 'EM_TRANSPORTE').length;
+    return { total, revenue, pending, shipping };
+  }, [orders]);
+
+  const kpiValues: Record<string, React.ReactNode> = {
+    total: kpis.total,
+    revenue: formatCurrency(kpis.revenue),
+    pending: kpis.pending,
+    shipping: kpis.shipping,
+  };
+
+  const statusCount = useMemo(
+    () =>
+      orders.reduce((acc, o) => {
+        const s = o.status || 'UNKNOWN';
+        acc[s] = (acc[s] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>),
+    [orders]
+  );
+
+  const donutData = useMemo(() => {
+    const statuses = Object.keys(STATUS_LABELS);
+    return {
+      labels: statuses.map((s) => STATUS_LABELS[s]),
+      datasets: [
+        {
+          data: statuses.map((s) => statusCount[s] || 0),
+          backgroundColor: statuses.map((s) => STATUS_COLORS[s]),
+          hoverBackgroundColor: statuses.map((s) => STATUS_COLORS[s]),
+          borderWidth: 2,
+          borderColor: '#fff',
+        },
+      ],
+    };
+  }, [statusCount]);
+
+  const donutOptions = {
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom' as const, labels: { padding: 16, font: { size: 12 } } },
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+    onClick: (event: any, elements: any[]) => {
+      if (elements && elements.length > 0) {
+        const index = elements[0].index;
+        const statuses = Object.keys(STATUS_LABELS);
+        const status = statuses[index];
+        if (status) {
+          navigate(`/admin/orders?status=${status}`);
+        }
+      }
+    },
+    onHover: (event: any, elements: any[]) => {
+      if (event.native && event.native.target) {
+        event.native.target.style.cursor = elements && elements.length > 0 ? 'pointer' : 'default';
+      }
+    }
+  };
+
+  const lineData = useMemo(() => {
+    const labels = getLast7DaysLabels();
+    const counts = labels.map((_, idx) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - idx));
+      const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      return orders.filter((o) => {
+        if (!o.orderDate) return false;
+        return new Date(o.orderDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) === dateStr;
+      }).length;
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Pedidos',
+          data: counts,
+          fill: true,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.1)',
+          tension: 0.4,
+          pointBackgroundColor: '#3b82f6',
+          pointRadius: 4,
+        },
+      ],
+    };
+  }, [orders]);
+
+  const lineOptions = {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+      y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 12 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+  };
+
+  const barData = useMemo(() => {
+    const labels = getLast6MonthsLabels();
+    const revenues = labels.map((_, idx) => {
+      const d = new Date();
+      d.setMonth(d.getMonth() - (5 - idx));
+      return orders
+        .filter((o) => {
+          if (!o.orderDate) return false;
+          const od = new Date(o.orderDate);
+          return (
+            od.getMonth() === d.getMonth() &&
+            od.getFullYear() === d.getFullYear() &&
+            (o.status === 'PAGO' || o.status === 'CONCLUIDO')
+          );
+        })
+        .reduce((sum, o) => sum + (o.total || 0), 0);
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Receita',
+          data: revenues,
+          backgroundColor: 'rgba(34,197,94,0.75)',
+          borderColor: '#22c55e',
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ],
+    };
+  }, [orders]);
+
+  const barOptions = {
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx: any) => ` ${formatCurrency(ctx.parsed.y)}`,
+        },
+      },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: {
+          font: { size: 12 },
+          callback: (v: any) => `R$ ${Number(v).toFixed(0)}`,
+        },
+      },
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+  };
+
+  const recentOrders = useMemo(
+    () =>
+      [...orders]
+        .sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime())
+        .slice(0, 5),
+    [orders]
+  );
+
   if (loading) {
     return (
       <div className="flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
@@ -85,79 +283,142 @@ export const AdminDashboard = () => {
     );
   }
 
-  const statusCount = orders.reduce((acc, order) => {
-    const s = order.status || 'UNKNOWN';
-    acc[s] = (acc[s] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const totalRevenue = orders
-    .filter((o) => o.status === 'PAGO' || o.status === 'CONCLUIDO')
-    .reduce((sum, o) => sum + (o.total || 0), 0);
-
-  const recentOrders = [...orders]
-    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
-    .slice(0, 5);
-
-  const statusTemplate = (rowData: IOrder) => (
-    <Tag severity={STATUS_SEVERITY[rowData.status || '']} value={STATUS_LABELS[rowData.status || ''] || rowData.status} />
-  );
-
-  const dateTemplate = (rowData: IOrder) => {
-    if (!rowData.createdAt) return '-';
-    return new Date(rowData.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
-
-  const totalTemplate = (rowData: IOrder) =>
-    rowData.total ? `R$ ${rowData.total.toFixed(2).replace('.', ',')}` : '-';
-
   return (
     <div>
-      <div className="flex align-items-center justify-content-between mb-4">
-        <h1 className="text-3xl font-bold text-900 m-0">Painel Administrativo</h1>
-        <Button label="Ver todos pedidos" icon="pi pi-list" className="p-button-outlined" onClick={() => navigate('/admin/orders')} />
-      </div>
+      <AdminPageHeader title="Dashboard" subtitle="Visão geral da operação" />
 
-      {/* Top 4 summary cards */}
-      <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-        {summaryCard('Total de Pedidos', orders.length, 'pi-shopping-cart', '#3b82f6', '#dbeafe', '#3b82f6')}
-        {summaryCard('Receita (Pago/Concluído)', `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`, 'pi-dollar', '#22c55e', '#dcfce7', '#22c55e')}
-        {summaryCard('Aguardando Pagamento', statusCount['AGUARDANDO_PAGAMENTO'] || 0, 'pi-clock', '#f59e0b', '#fef3c7', '#f59e0b')}
-        {summaryCard('Em Transporte', statusCount['EM_TRANSPORTE'] || 0, 'pi-truck', '#06b6d4', '#cffafe', '#06b6d4')}
-      </div>
+      <style>{`
+        .dash-grid-kpi {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+        .dash-grid-charts {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+        .dash-grid-bottom {
+          display: grid;
+          grid-template-columns: 1fr 320px;
+          gap: 1rem;
+        }
+        @media (max-width: 992px) {
+          .dash-grid-charts {
+            grid-template-columns: 1fr;
+          }
+          .dash-grid-bottom {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
 
-      {/* Status breakdown — clicks filter orders page */}
-      <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '1rem' }}>
-        {Object.entries(STATUS_LABELS).map(([status, label]) => (
+      <div className="dash-grid-kpi">
+        {KPI_CARD_CONFIGS.map(({ key, label, icon, color, bg }) => (
           <div
-            key={status}
-            className="surface-card shadow-2 border-round p-3 text-center cursor-pointer hover:surface-100 transition-colors transition-duration-150"
-            onClick={() => navigate(`/admin/orders?status=${status}`)}
-            style={{ borderTop: `3px solid ${STATUS_COLORS[status]}` }}
+            key={key}
+            className="surface-card shadow-1 border-round-lg p-3 w-full"
+            style={{ borderTop: `3px solid ${color}` }}
           >
-            <i className={`pi ${STATUS_ICONS[status]} text-xl mb-2 block`} style={{ color: STATUS_COLORS[status] }} />
-            <span className="block text-500 text-xs mb-1">{label}</span>
-            <span className="block font-bold text-2xl text-900">{statusCount[status] || 0}</span>
+            <div className="flex align-items-center justify-content-between">
+              <div>
+                <span className="block text-500 font-medium text-sm mb-2">{label}</span>
+                <span className="block font-bold text-2xl" style={{ color }}>{kpiValues[key]}</span>
+              </div>
+              <div
+                className="w-3rem h-3rem border-round-lg flex align-items-center justify-content-center flex-shrink-0"
+                style={{ backgroundColor: bg }}
+              >
+                <i className={`pi ${icon} text-lg`} style={{ color }} />
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Recent orders */}
-      <div className="surface-card shadow-2 border-round p-3">
-        <div className="flex align-items-center justify-content-between mb-3">
-          <h3 className="m-0 text-800 font-semibold">Pedidos Recentes</h3>
-          <Button label="Ver todos" icon="pi pi-arrow-right" iconPos="right" className="p-button-text p-button-sm" onClick={() => navigate('/admin/orders')} />
+      <div className="dash-grid-charts">
+        <div className="surface-card shadow-1 border-round-lg p-4 w-full">
+          <h3 className="m-0 mb-3 text-800 font-semibold text-sm">Pedidos — últimos 7 dias</h3>
+          <div style={{ height: '220px' }}>
+            <Chart type="line" data={lineData} options={lineOptions} />
+          </div>
         </div>
-        <DataTable value={recentOrders} className="p-datatable-sm" emptyMessage="Nenhum pedido encontrado." stripedRows>
-          <Column field="id" header="# Pedido" style={{ width: '8rem' }} />
-          <Column header="Data" body={dateTemplate} />
-          <Column field="paymentMethod" header="Pagamento" />
-          <Column header="Total" body={totalTemplate} />
-          <Column header="Status" body={statusTemplate} />
-          <Column header="" body={(row: IOrder) => (
-            <Button icon="pi pi-eye" className="p-button-rounded p-button-text p-button-sm" onClick={() => navigate(`/admin/orders/${row.id}`)} />
-          )} style={{ width: '4rem' }} />
-        </DataTable>
+
+        <div className="surface-card shadow-1 border-round-lg p-4 w-full">
+          <h3 className="m-0 mb-3 text-800 font-semibold text-sm">Receita — últimos 6 meses</h3>
+          <div style={{ height: '220px' }}>
+            <Chart type="bar" data={barData} options={barOptions} />
+          </div>
+        </div>
+      </div>
+
+      <div className="dash-grid-bottom">
+        <div className="surface-card shadow-1 border-round-lg p-4 w-full overflow-hidden">
+          <div className="flex align-items-center justify-content-between mb-3">
+            <h3 className="m-0 text-800 font-semibold text-sm">Pedidos Recentes</h3>
+            <Button
+              label="Ver todos"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              className="p-button-text p-button-sm"
+              onClick={() => navigate('/admin/orders')}
+            />
+          </div>
+          <DataTable
+            value={recentOrders}
+            className="p-datatable-sm"
+            emptyMessage="Nenhum pedido encontrado."
+            stripedRows
+            responsiveLayout="scroll"
+          >
+            <Column field="id" header="# Pedido" style={{ minWidth: '7rem' }} />
+            <Column
+              header="Data"
+              style={{ minWidth: '8rem' }}
+              body={(row: IOrder) =>
+                row.orderDate
+                  ? new Date(row.orderDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                  : '-'
+              }
+            />
+            <Column field="paymentMethod" header="Pagamento" style={{ minWidth: '8rem' }} />
+            <Column
+              header="Total"
+              style={{ minWidth: '8rem' }}
+              body={(row: IOrder) => (row.total ? formatCurrency(row.total) : '-')}
+            />
+            <Column
+              header="Status"
+              style={{ minWidth: '10rem' }}
+              body={(row: IOrder) => (
+                <Tag
+                  severity={STATUS_SEVERITY[row.status || '']}
+                  value={STATUS_LABELS[row.status || ''] || row.status}
+                />
+              )}
+            />
+            <Column
+              header=""
+              style={{ minWidth: '3.5rem', textAlign: 'center' }}
+              body={(row: IOrder) => (
+                <Button
+                  icon="pi pi-eye"
+                  className="p-button-rounded p-button-text p-button-sm"
+                  onClick={() => navigate(`/admin/orders/${row.id}`)}
+                />
+              )}
+            />
+          </DataTable>
+        </div>
+
+        <div className="surface-card shadow-1 border-round-lg p-4 w-full">
+          <h3 className="m-0 mb-3 text-800 font-semibold text-sm">Distribuição de Status</h3>
+          <div style={{ height: '260px' }}>
+            <Chart type="doughnut" data={donutData} options={donutOptions} />
+          </div>
+        </div>
       </div>
     </div>
   );

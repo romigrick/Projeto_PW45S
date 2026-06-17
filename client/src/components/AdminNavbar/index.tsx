@@ -1,58 +1,25 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 
-export const AdminNavbar = () => {
-  const { handleLogout } = useAuth();
-  const navigate = useNavigate();
+interface AdminPageHeaderProps {
+  title: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
+}
 
-  const logout = () => {
-    handleLogout();
-    navigate('/login');
-  };
-
+export const AdminPageHeader = ({ title, subtitle, actions }: AdminPageHeaderProps) => {
   return (
-    <nav
-      className="py-3 px-5 text-white flex justify-content-between align-items-center"
+    <div
+      className="flex align-items-center justify-content-between mb-4"
       style={{
-        backgroundColor: '#003399',
-        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
+        paddingBottom: '1rem',
+        borderBottom: '1px solid var(--surface-border)',
       }}
     >
-      <div className="flex align-items-center gap-5">
-        <h2 className="m-0 text-xl font-bold text-white">Admin Panel</h2>
-        <div className="flex gap-4">
-          {[
-            { to: '/admin/dashboard', label: 'Dashboard' },
-            { to: '/admin/orders', label: 'Pedidos' },
-            { to: '/admin/users', label: 'Usuários' },
-            { to: '/', label: 'Ir para Loja' },
-          ].map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
-              className="no-underline font-semibold text-sm"
-              style={{ color: 'white' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#93c5fd')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'white')}
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
+      <div>
+        <h1 className="m-0 text-2xl font-bold text-900">{title}</h1>
+        {subtitle && <span className="text-500 text-sm mt-1 block">{subtitle}</span>}
       </div>
-      <button
-        onClick={logout}
-        className="border-none cursor-pointer font-semibold text-sm px-3 py-2 border-round"
-        style={{ backgroundColor: 'transparent', color: 'white' }}
-        onMouseEnter={e => (e.currentTarget.style.color = '#fca5a5')}
-        onMouseLeave={e => (e.currentTarget.style.color = 'white')}
-      >
-        Sair
-      </button>
-    </nav>
+      {actions && <div className="flex gap-2">{actions}</div>}
+    </div>
   );
 };

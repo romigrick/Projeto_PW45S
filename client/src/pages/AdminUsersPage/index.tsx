@@ -132,8 +132,13 @@ export const AdminUsersPage = () => {
       <span className="text-xl font-bold text-900">Gerenciamento de Usuários</span>
       <div className="flex gap-2 align-items-center">
         <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText placeholder="Buscar por nome, e-mail..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} />
+          <i className="pi pi-search" style={{ left: '0.75rem' }} />
+          <InputText
+            placeholder="Buscar por nome, e-mail..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            style={{ paddingLeft: '2.5rem' }}
+          />
         </span>
         <Button icon="pi pi-refresh" className="p-button-outlined" tooltip="Atualizar" onClick={fetchUsers} />
       </div>
@@ -157,22 +162,22 @@ export const AdminUsersPage = () => {
       <ConfirmDialog />
 
       <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-        <div className="surface-card shadow-2 border-round p-3 text-center" style={{ borderTop: '3px solid #3b82f6' }}>
+        <div className="surface-card border-round p-3 text-center" style={{ borderTop: '3px solid #3b82f6' }}>
           <span className="block text-500 text-sm mb-1">Total de Usuários</span>
           <span className="block font-bold text-3xl text-900">{users.length}</span>
         </div>
-        <div className="surface-card shadow-2 border-round p-3 text-center" style={{ borderTop: '3px solid #22c55e' }}>
+        <div className="surface-card border-round p-3 text-center" style={{ borderTop: '3px solid #22c55e' }}>
           <span className="block text-500 text-sm mb-1">Ativos</span>
           <span className="block font-bold text-3xl text-green-600">{totalActive}</span>
         </div>
         {/* Changed: was "Aguardando Ativação", now shows Inativos */}
-        <div className="surface-card shadow-2 border-round p-3 text-center" style={{ borderTop: '3px solid #ef4444' }}>
+        <div className="surface-card border-round p-3 text-center" style={{ borderTop: '3px solid #ef4444' }}>
           <span className="block text-500 text-sm mb-1">Inativos</span>
           <span className="block font-bold text-3xl text-red-500">{totalInactive}</span>
         </div>
       </div>
 
-      <div className="surface-card shadow-2 border-round p-3">
+      <div className="surface-card border-round p-3">
         <DataTable value={filteredUsers} header={header} paginator rows={10} rowsPerPageOptions={[5, 10, 25]} emptyMessage="Nenhum usuário encontrado." stripedRows responsiveLayout="scroll" className="p-datatable-sm">
           <Column field="id" header="ID" sortable style={{ width: '5rem' }} />
           <Column field="displayName" header="Nome" sortable />

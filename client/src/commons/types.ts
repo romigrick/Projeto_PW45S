@@ -1,6 +1,7 @@
 export interface IUserRegister {
   displayName: string;
   username: string;
+  email: string;
   password: string;
 }
 
@@ -69,7 +70,7 @@ export interface IOrder {
   items: IOrderPayloadItem[];
   total?: number;
   status?: string;
-  createdAt?: string;
+  orderDate?: string;
 }
 
 export interface IOrderResponse {

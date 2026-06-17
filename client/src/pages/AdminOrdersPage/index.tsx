@@ -13,7 +13,7 @@ import OrderService from '../../services/orderService';
 import type { IOrder } from '../../commons/types';
 
 const STATUS_OPTIONS = [
-  { label: 'Todos', value: '' },
+  { label: 'Todos', value: null },
   { label: 'Aguardando Pagamento', value: 'AGUARDANDO_PAGAMENTO' },
   { label: 'Pago', value: 'PAGO' },
   { label: 'Em Preparação', value: 'EM_PREPARACAO' },
@@ -44,27 +44,29 @@ export const AdminOrdersPage = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState<Date | null>(null);
+  const [dateRange, setDateRange] = useState<(Date | null)[]>([null, null]);
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
 
-  // Read ?status= from URL (set by dashboard cards)
   const [searchParams, setSearchParams] = useSearchParams();
-  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
+  const [statusFilter, setStatusFilter] = useState<string | null>(searchParams.get('status') || null);
 
   useEffect(() => { fetchOrders(); }, []);
 
-  // Sync URL param → filter on first load
   useEffect(() => {
     const s = searchParams.get('status');
-    if (s) setStatusFilter(s);
-  }, []);
+    // Evita injetar "[object Object]" ou valores inválidos no estado
+    if (s && s !== '[object Object]') {
+      setStatusFilter(s);
+    } else {
+      setStatusFilter(null);
+    }
+  }, [searchParams]);
 
   const fetchOrders = async () => {
     setLoading(true);
     const response = await OrderService.getAllOrders();
     if (response.success) {
-      // getAllOrders may return Page<> or plain array
       const raw = response.data;
       setOrders(Array.isArray(raw) ? raw : raw?.content ?? []);
     } else {
@@ -73,51 +75,114 @@ export const AdminOrdersPage = () => {
     setLoading(false);
   };
 
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value);
-    if (value) setSearchParams({ status: value });
-    else setSearchParams({});
+  const handleStatusFilterChange = (value: string | null) => {
+    // Se o valor for nulo ou não for uma string válida, limpa o filtro
+    if (!value || typeof value !== 'string') {
+      setStatusFilter(null);
+      setSearchParams({});
+    } else {
+      setStatusFilter(value);
+      setSearchParams({ status: value });
+    }
   };
-
   const statusTemplate = (rowData: IOrder) => {
     const status = rowData.status || 'UNKNOWN';
     return <Tag severity={STATUS_SEVERITY[status]} value={STATUS_LABELS[status] || status} />;
   };
 
   const dateTemplate = (rowData: IOrder) => {
-    if (!rowData.createdAt) return '-';
-    return new Date(rowData.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    if (!rowData.orderDate) return '-';
+    return new Date(rowData.orderDate).toLocaleDateString('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
   };
 
   const totalTemplate = (rowData: IOrder) =>
     rowData.total ? `R$ ${rowData.total.toFixed(2).replace('.', ',')}` : '-';
 
   const actionsTemplate = (rowData: IOrder) => (
-    <Button icon="pi pi-eye" className="p-button-rounded p-button-text p-button-info" tooltip="Ver detalhes" tooltipOptions={{ position: 'top' }} onClick={() => navigate(`/admin/orders/${rowData.id}`)} />
+    <Button
+      icon="pi pi-eye"
+      className="p-button-rounded p-button-text p-button-info"
+      tooltip="Ver detalhes"
+      tooltipOptions={{ position: 'top' }}
+      onClick={() => navigate(`/admin/orders/${rowData.id}`)}
+    />
   );
+
+  const [rangeStart, rangeEnd] = dateRange;
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = statusFilter ? order.status === statusFilter : true;
+
     const matchesSearch = globalFilter
-      ? String(order.id).includes(globalFilter) || (order.paymentMethod || '').toLowerCase().includes(globalFilter.toLowerCase())
+      ? String(order.id).includes(globalFilter) ||
+      (order.paymentMethod || '').toLowerCase().includes(globalFilter.toLowerCase())
       : true;
-    const matchesDate = dateFilter
-      ? order.createdAt && new Date(order.createdAt).toDateString() === dateFilter.toDateString()
-      : true;
+
+    const orderDate = order.orderDate ? new Date(order.orderDate) : null;
+    const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const matchesDate =
+      rangeStart && rangeEnd
+        ? orderDate !== null &&
+        orderDate >= startOfDay(rangeStart) &&
+        orderDate <= new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate(), 23, 59, 59)
+        : rangeStart
+          ? orderDate !== null && orderDate >= startOfDay(rangeStart)
+          : true;
+
     return matchesStatus && matchesSearch && matchesDate;
   });
+
+  const handleDateRangeChange = (value: Date | Date[] | null) => {
+    if (!value) {
+      setDateRange([null, null]);
+    } else if (Array.isArray(value)) {
+      setDateRange([value[0] ?? null, value[1] ?? null]);
+    } else {
+      setDateRange([value, null]);
+    }
+  };
 
   const header = (
     <div className="flex flex-wrap align-items-center justify-content-between gap-3">
       <span className="text-xl font-bold text-900">Pedidos</span>
       <div className="flex flex-wrap gap-2 align-items-center">
         <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText placeholder="Buscar..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} />
+          <i className="pi pi-search" style={{ left: '0.75rem' }} />
+          <InputText
+            placeholder="Buscar..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            style={{ paddingLeft: '2.5rem' }}
+          />
         </span>
-        <Dropdown value={statusFilter} options={STATUS_OPTIONS} onChange={(e) => handleStatusFilterChange(e.value)} placeholder="Filtrar status" />
-        <Calendar value={dateFilter} onChange={(e) => setDateFilter(e.value as Date | null)} placeholder="Filtrar data" dateFormat="dd/mm/yy" showClear />
-        <Button icon="pi pi-refresh" className="p-button-outlined" tooltip="Atualizar" onClick={fetchOrders} />
+        <Dropdown
+          value={statusFilter}
+          options={STATUS_OPTIONS}
+          onChange={(e) => handleStatusFilterChange(e.value)}
+          placeholder="Filtrar status"
+        />
+        <div className="flex align-items-center gap-2">
+          <Calendar
+            value={dateRange.filter(Boolean) as Date[]}
+            onChange={(e) => handleDateRangeChange(e.value as Date | Date[] | null)}
+            selectionMode="range"
+            placeholder="Filtrar por período"
+            dateFormat="dd/mm/yy"
+            showClear
+            readOnlyInput
+          />
+          {(dateRange[0] || dateRange[1]) && (
+            <Button
+              icon="pi pi-filter-slash"
+              className="p-button-flat p-button-plain"
+              tooltip="Limpar período"
+              tooltipOptions={{ position: 'top' }}
+              onClick={() => setDateRange([null, null])}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -133,7 +198,7 @@ export const AdminOrdersPage = () => {
   return (
     <div>
       <Toast ref={toast} />
-      <div className="surface-card border-round shadow-2 p-4">
+      <div className="surface-card border-round p-4">
         <DataTable
           value={filteredOrders}
           header={header}
@@ -146,7 +211,7 @@ export const AdminOrdersPage = () => {
           className="p-datatable-sm"
         >
           <Column field="id" header="# Pedido" sortable style={{ width: '8rem' }} />
-          <Column header="Data" body={dateTemplate} sortable sortField="createdAt" />
+          <Column header="Data" body={dateTemplate} sortable sortField="orderDate" />
           <Column field="paymentMethod" header="Pagamento" />
           <Column field="shippingOption" header="Frete" />
           <Column header="Total" body={totalTemplate} sortable sortField="total" />

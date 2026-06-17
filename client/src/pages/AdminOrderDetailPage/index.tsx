@@ -169,6 +169,8 @@ export const AdminOrderDetailPage = () => {
     <Button icon="pi pi-download" className="p-button-rounded p-button-text p-button-sm" tooltip="Baixar arquivo" tooltipOptions={{ position: 'top' }} onClick={() => handleDownload(rowData)} />
   );
 
+  const [hasFile, setHasFile] = useState(false);
+
   const timelineEvents = [...history].reverse().map((h) => ({
     label: `${STATUS_LABELS[h.previousStatus || ''] || h.previousStatus || 'Início'} → ${STATUS_LABELS[h.newStatus] || h.newStatus}`,
     date: formatDate(h.changedAt),
@@ -209,7 +211,7 @@ export const AdminOrderDetailPage = () => {
           <Button icon="pi pi-arrow-left" className="p-button-text p-button-rounded" onClick={() => navigate('/admin/orders')} />
           <div>
             <h2 className="m-0 text-900 font-bold text-2xl">Pedido #{order.id}</h2>
-            <span className="text-500 text-sm">{formatDate(order.createdAt)}</span>
+            <span className="text-500 text-sm">{formatDate((order as any).orderDate)}</span>
           </div>
         </div>
         <Tag
@@ -288,12 +290,7 @@ export const AdminOrderDetailPage = () => {
           </div>
 
           {/* Attachments */}
-          <div className="surface-card shadow-2 border-round p-4">
-            <h3 className="mt-0 mb-3 text-800 font-semibold">Anexos</h3>
-            <div className="mb-3">
-              <label className="block text-700 text-sm mb-1">Descrição do arquivo (opcional)</label>
-              <InputTextarea value={attachDescription} onChange={(e) => setAttachDescription(e.target.value)} rows={2} placeholder="Ex: Nota fiscal, comprovante de pagamento..." className="w-full" />
-            </div>
+          <div className="flex align-items-center gap-2 mb-4">
             <FileUpload
               ref={fileUploadRef}
               mode="basic"
@@ -303,24 +300,21 @@ export const AdminOrderDetailPage = () => {
               customUpload
               uploadHandler={handleFileUpload}
               chooseLabel="Selecionar arquivo"
-              uploadLabel="Enviar"
-              className="mb-4"
               auto={false}
               disabled={uploadingFile}
+              onSelect={() => setHasFile(true)}
             />
-            {attachments.length > 0 ? (
-              <DataTable value={attachments} className="p-datatable-sm" stripedRows emptyMessage="Nenhum anexo.">
-                <Column header="" body={fileIconTemplate} style={{ width: '3rem' }} />
-                <Column field="originalFileName" header="Arquivo" />
-                <Column field="contentType" header="Tipo" />
-                <Column header="Tamanho" body={(row: IAttachment) => formatSize(row.fileSize)} />
-                <Column header="Enviado em" body={(row: IAttachment) => formatDate(row.uploadedAt)} />
-                <Column field="uploadedBy" header="Por" />
-                <Column field="description" header="Descrição" />
-                <Column header="" body={fileActionsTemplate} style={{ width: '4rem' }} />
-              </DataTable>
-            ) : (
-              <p className="text-500 text-center mt-3">Nenhum anexo encontrado para este pedido.</p>
+            {hasFile && (
+              <Button
+                icon="pi pi-times"
+                className="p-button-rounded p-button-danger p-button-text"
+                tooltip="Remover seleção"
+                disabled={uploadingFile}
+                onClick={() => {
+                  fileUploadRef.current?.clear();
+                  setHasFile(false);
+                }}
+              />
             )}
           </div>
         </div>
@@ -353,7 +347,7 @@ export const AdminOrderDetailPage = () => {
                   accept=".pdf"
                   maxFileSize={10_000_000}
                   customUpload
-                  uploadHandler={() => {}}
+                  uploadHandler={() => { }}
                   chooseLabel={transportFile ? `✓ ${transportFile.name}` : 'Selecionar PDF'}
                   auto={false}
                   onSelect={(e) => setTransportFile(e.files[0])}
@@ -379,8 +373,12 @@ export const AdminOrderDetailPage = () => {
             </p>
           </div>
 
-          {/* History */}
           <div className="surface-card shadow-2 border-round p-4">
+            <style>{`
+              .timeline-no-opposite .p-timeline-event-opposite {
+                display: none !important;
+              }
+            `}</style>
             <h3 className="mt-0 mb-3 text-800 font-semibold">
               Histórico de Status
               {history.length > 0 && <span className="ml-2 text-500 text-sm font-normal">({history.length})</span>}
@@ -389,7 +387,7 @@ export const AdminOrderDetailPage = () => {
               <Timeline
                 value={timelineEvents}
                 align="left"
-                className="w-full"
+                className="w-full timeline-no-opposite"
                 marker={(item) => (
                   <span
                     className="flex w-2rem h-2rem align-items-center justify-content-center border-circle flex-shrink-0"
