@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 ];
 
 export const AdminLayout = () => {
-  const { handleLogout } = useAuth();
+  const { handleLogout, isAdmin, isOperator, authenticatedUser } = useAuth();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -20,6 +20,8 @@ export const AdminLayout = () => {
   };
 
   const sidebarWidth = collapsed ? '64px' : '200px';
+
+  const roleLabel = isAdmin ? 'Admin' : isOperator ? 'Operador' : '';
 
   return (
     <div className="flex min-h-screen surface-ground">
@@ -50,9 +52,50 @@ export const AdminLayout = () => {
           }}
         >
           {!collapsed && (
-            <span style={{ color: 'white', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
-              Admin Panel
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{ color: 'white', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
+                Admin Panel
+              </span>
+              {roleLabel && (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: isOperator ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.15)',
+                    color: isOperator ? '#fcd34d' : 'rgba(255,255,255,0.8)',
+                    fontSize: '0.65rem',
+                    fontWeight: 600,
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
+                    width: 'fit-content',
+                  }}
+                >
+                  {roleLabel}
+                </span>
+              )}
+            </div>
+          )}
+          {collapsed && roleLabel && (
+            <div
+              title={roleLabel}
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                backgroundColor: isOperator ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'default',
+              }}
+            >
+              <i
+                className={isOperator ? 'pi pi-user' : 'pi pi-shield'}
+                style={{ fontSize: '0.75rem', color: isOperator ? '#fcd34d' : 'rgba(255,255,255,0.8)' }}
+              />
+            </div>
           )}
           <button
             onClick={() => setCollapsed((c) => !c)}
@@ -101,6 +144,14 @@ export const AdminLayout = () => {
             </NavLink>
           ))}
         </nav>
+
+        {!collapsed && authenticatedUser && (
+          <div style={{ padding: '0.5rem 1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {authenticatedUser.displayName || authenticatedUser.username}
+            </p>
+          </div>
+        )}
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.12)', padding: '0.75rem' }}>
           <button

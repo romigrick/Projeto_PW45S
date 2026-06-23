@@ -12,7 +12,9 @@ import { Timeline } from 'primereact/timeline';
 import { Divider } from 'primereact/divider';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Message } from 'primereact/message';
 import OrderService from '../../services/orderService';
+import { useAuth } from '../../context/AuthContext';
 import type { IOrder, IAttachment, IOrderStatusHistory } from '../../commons/types';
 
 const STATUS_OPTIONS = [
@@ -57,6 +59,7 @@ export const AdminOrderDetailPage = () => {
   const toast = useRef<Toast>(null);
   const fileUploadRef = useRef<any>(null);
   const transportFileRef = useRef<any>(null);
+  const { isAdmin } = useAuth();
 
   const [order, setOrder] = useState<IOrder | null>(null);
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
@@ -67,8 +70,8 @@ export const AdminOrderDetailPage = () => {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [attachDescription, setAttachDescription] = useState('');
-  // For the "Em Transporte" inline attach
   const [transportFile, setTransportFile] = useState<File | null>(null);
+  const [hasFile, setHasFile] = useState(false);
 
   useEffect(() => {
     if (id) fetchOrderData(Number(id));
@@ -109,7 +112,6 @@ export const AdminOrderDetailPage = () => {
       rejectLabel: 'Cancelar',
       accept: async () => {
         setUpdatingStatus(true);
-        // If EM_TRANSPORTE, upload nota fiscal first
         if (selectedStatus === 'EM_TRANSPORTE' && transportFile) {
           await OrderService.uploadAttachment(Number(id), transportFile, 'Nota Fiscal');
           setTransportFile(null);
@@ -169,8 +171,6 @@ export const AdminOrderDetailPage = () => {
     <Button icon="pi pi-download" className="p-button-rounded p-button-text p-button-sm" tooltip="Baixar arquivo" tooltipOptions={{ position: 'top' }} onClick={() => handleDownload(rowData)} />
   );
 
-  const [hasFile, setHasFile] = useState(false);
-
   const timelineEvents = [...history].reverse().map((h) => ({
     label: `${STATUS_LABELS[h.previousStatus || ''] || h.previousStatus || 'Início'} → ${STATUS_LABELS[h.newStatus] || h.newStatus}`,
     date: formatDate(h.changedAt),
@@ -196,7 +196,6 @@ export const AdminOrderDetailPage = () => {
     );
   }
 
-  // Pull customer/address info from order (backend populates these in the response)
   const addr = (order as any).address;
   const customer = (order as any).customer || (order as any).user;
 
@@ -205,7 +204,6 @@ export const AdminOrderDetailPage = () => {
       <Toast ref={toast} />
       <ConfirmDialog />
 
-      {/* Page header */}
       <div className="flex align-items-center justify-content-between mb-4">
         <div className="flex align-items-center gap-3">
           <Button icon="pi pi-arrow-left" className="p-button-text p-button-rounded" onClick={() => navigate('/admin/orders')} />
@@ -221,13 +219,9 @@ export const AdminOrderDetailPage = () => {
         />
       </div>
 
-      {/* 2-column layout */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem', alignItems: 'start' }}>
 
-        {/* ── Left column ── */}
         <div>
-
-          {/* Customer + Address info */}
           <div className="surface-card shadow-2 border-round p-4 mb-4">
             <h3 className="mt-0 mb-3 text-800 font-semibold">Dados do Cliente</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -254,7 +248,6 @@ export const AdminOrderDetailPage = () => {
             )}
           </div>
 
-          {/* Order info */}
           <div className="surface-card shadow-2 border-round p-4 mb-4">
             <h3 className="mt-0 mb-3 text-800 font-semibold">Informações do Pedido</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }} className="mb-3">
@@ -289,88 +282,118 @@ export const AdminOrderDetailPage = () => {
             )}
           </div>
 
-          {/* Attachments */}
-          <div className="flex align-items-center gap-2 mb-4">
-            <FileUpload
-              ref={fileUploadRef}
-              mode="basic"
-              name="files"
-              accept=".pdf,.png,.jpg,.jpeg"
-              maxFileSize={10_000_000}
-              customUpload
-              uploadHandler={handleFileUpload}
-              chooseLabel="Selecionar arquivo"
-              auto={false}
-              disabled={uploadingFile}
-              onSelect={() => setHasFile(true)}
-            />
-            {hasFile && (
-              <Button
-                icon="pi pi-times"
-                className="p-button-rounded p-button-danger p-button-text"
-                tooltip="Remover seleção"
-                disabled={uploadingFile}
-                onClick={() => {
-                  fileUploadRef.current?.clear();
-                  setHasFile(false);
-                }}
-              />
+          {/* Attachments — upload visível só para admin */}
+          <div className="surface-card shadow-2 border-round p-4 mb-4">
+            <h3 className="mt-0 mb-3 text-800 font-semibold">Anexos</h3>
+
+            {attachments.length > 0 ? (
+              <DataTable value={attachments} className="p-datatable-sm" stripedRows>
+                <Column header="" body={fileIconTemplate} style={{ width: '3rem' }} />
+                <Column field="originalFileName" header="Arquivo" />
+                <Column field="description" header="Descrição" />
+                <Column header="Tamanho" body={(row: IAttachment) => formatSize(row.fileSize)} />
+                <Column header="Enviado em" body={(row: IAttachment) => formatDate(row.uploadedAt)} />
+                <Column header="" body={fileActionsTemplate} style={{ width: '4rem' }} />
+              </DataTable>
+            ) : (
+              <p className="text-500 text-sm">Nenhum anexo.</p>
+            )}
+
+            {isAdmin && (
+              <div className="flex align-items-center gap-2 mt-3">
+                <FileUpload
+                  ref={fileUploadRef}
+                  mode="basic"
+                  name="files"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  maxFileSize={10_000_000}
+                  customUpload
+                  uploadHandler={handleFileUpload}
+                  chooseLabel="Selecionar arquivo"
+                  auto={false}
+                  disabled={uploadingFile}
+                  onSelect={() => setHasFile(true)}
+                />
+                {hasFile && (
+                  <Button
+                    icon="pi pi-times"
+                    className="p-button-rounded p-button-danger p-button-text"
+                    tooltip="Remover seleção"
+                    disabled={uploadingFile}
+                    onClick={() => {
+                      fileUploadRef.current?.clear();
+                      setHasFile(false);
+                    }}
+                  />
+                )}
+              </div>
             )}
           </div>
         </div>
 
-        {/* ── Right column ── */}
+        {/* Coluna direita */}
         <div>
-          {/* Status update */}
           <div className="surface-card shadow-2 border-round p-4 mb-4">
-            <h3 className="mt-0 mb-3 text-800 font-semibold">Alterar Status</h3>
-            <Dropdown
-              value={selectedStatus}
-              options={STATUS_OPTIONS}
-              onChange={(e) => setSelectedStatus(e.value)}
-              placeholder="Selecionar status"
-              className="w-full mb-3"
-            />
+            <h3 className="mt-0 mb-3 text-800 font-semibold">
+              {isAdmin ? 'Alterar Status' : 'Status do Pedido'}
+            </h3>
 
-            {/* Nota fiscal obrigatória quando status = EM_TRANSPORTE */}
-            {selectedStatus === 'EM_TRANSPORTE' && (
-              <div className="mb-3 p-3 border-round border-1 border-blue-200" style={{ backgroundColor: '#eff6ff' }}>
-                <label className="block text-700 text-sm font-medium mb-2">
-                  <i className="pi pi-file-pdf mr-1 text-blue-600" />
-                  Nota Fiscal <span className="text-red-500">*</span>
-                </label>
-                <p className="text-500 text-xs mt-0 mb-2">Obrigatório para enviar ao transporte.</p>
-                <FileUpload
-                  ref={transportFileRef}
-                  mode="basic"
-                  name="notaFiscal"
-                  accept=".pdf"
-                  maxFileSize={10_000_000}
-                  customUpload
-                  uploadHandler={() => { }}
-                  chooseLabel={transportFile ? `✓ ${transportFile.name}` : 'Selecionar PDF'}
-                  auto={false}
-                  onSelect={(e) => setTransportFile(e.files[0])}
-                  onClear={() => setTransportFile(null)}
-                  className="w-full"
+            {isAdmin ? (
+              <>
+                <Dropdown
+                  value={selectedStatus}
+                  options={STATUS_OPTIONS}
+                  onChange={(e) => setSelectedStatus(e.value)}
+                  placeholder="Selecionar status"
+                  className="w-full mb-3"
                 />
-              </div>
-            )}
 
-            <label className="block text-700 text-sm mb-1">Observação (opcional)</label>
-            <InputTextarea value={observation} onChange={(e) => setObservation(e.target.value)} rows={3} placeholder="Motivo da alteração..." className="w-full mb-3" />
-            <Button
-              label="Atualizar Status"
-              icon="pi pi-check"
-              className="w-full"
-              loading={updatingStatus}
-              disabled={!selectedStatus || selectedStatus === order.status}
-              onClick={handleStatusUpdate}
-            />
-            <p className="text-500 text-sm mt-2 mb-0 text-center">
-              <i className="pi pi-envelope mr-1" />
-              Um e-mail será enviado ao cliente.
-            </p>
+                {selectedStatus === 'EM_TRANSPORTE' && (
+                  <div className="mb-3 p-3 border-round border-1 border-blue-200" style={{ backgroundColor: '#eff6ff' }}>
+                    <label className="block text-700 text-sm font-medium mb-2">
+                      <i className="pi pi-file-pdf mr-1 text-blue-600" />
+                      Nota Fiscal <span className="text-red-500">*</span>
+                    </label>
+                    <p className="text-500 text-xs mt-0 mb-2">Obrigatório para enviar ao transporte.</p>
+                    <FileUpload
+                      ref={transportFileRef}
+                      mode="basic"
+                      name="notaFiscal"
+                      accept=".pdf"
+                      maxFileSize={10_000_000}
+                      customUpload
+                      uploadHandler={() => { }}
+                      chooseLabel={transportFile ? `✓ ${transportFile.name}` : 'Selecionar PDF'}
+                      auto={false}
+                      onSelect={(e) => setTransportFile(e.files[0])}
+                      onClear={() => setTransportFile(null)}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+                <label className="block text-700 text-sm mb-1">Observação (opcional)</label>
+                <InputTextarea value={observation} onChange={(e) => setObservation(e.target.value)} rows={3} placeholder="Motivo da alteração..." className="w-full mb-3" />
+                <Button
+                  label="Atualizar Status"
+                  icon="pi pi-check"
+                  className="w-full"
+                  loading={updatingStatus}
+                  disabled={!selectedStatus || selectedStatus === order.status}
+                  onClick={handleStatusUpdate}
+                />
+                <p className="text-500 text-sm mt-2 mb-0 text-center">
+                  <i className="pi pi-envelope mr-1" />
+                  Um e-mail será enviado ao cliente.
+                </p>
+              </>
+            ) : (
+              <Message
+                severity="info"
+                className="w-full"
+                text="Você tem acesso somente de visualização. Apenas administradores podem alterar o status."
+              />
+            )}
           </div>
 
           <div className="surface-card shadow-2 border-round p-4">

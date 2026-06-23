@@ -21,7 +21,7 @@ interface AuthDisplayProps {
 const AuthDisplay: React.FC<AuthDisplayProps> = ({ authenticated, authenticatedUser, handleLogout, navigate, isMobile }) => {
   const userMenuRef = useRef<OverlayPanel>(null);
   const [mobileUserMenuOpen, setMobileUserMenuOpen] = useState(false);
-  const isAdmin = authenticatedUser?.authorities?.some(a => a.authority === 'ROLE_ADMIN');
+  const isAdmin = authenticatedUser?.authorities?.some(a => a.authority === 'ROLE_ADMIN' || a.authority === 'ROLE_OPERATOR');
 
   const userMenuItems = [
     {
@@ -308,7 +308,7 @@ const Header = () => {
                 <i className={`pi ${mobileUserMenuOpen ? 'pi-chevron-up' : 'pi-chevron-down'} ml-auto`}></i>
                 {mobileUserMenuOpen && (
                   <div className="user-menu-mobile-dropdown">
-                    <Menu model={userMenuItemsForMobile(navigate, handleLogout, setMobileMenuOpen, setMobileUserMenuOpen, authenticatedUser?.authorities?.some(a => a.authority === 'ROLE_ADMIN'))} className="user-menu-mobile" />
+                    <Menu model={userMenuItemsForMobile(navigate, handleLogout, setMobileMenuOpen, setMobileUserMenuOpen, authenticatedUser?.authorities?.some(a => a.authority === 'ROLE_ADMIN' || a.authority === 'ROLE_OPERATOR'))} className="user-menu-mobile" />
                   </div>
                 )}
               </div>

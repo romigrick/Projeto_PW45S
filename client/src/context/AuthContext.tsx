@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { AuthenticatedUser, AuthenticationResponse } from "@/commons/types";
@@ -8,6 +7,8 @@ interface AuthContextType {
   authenticated: boolean;
   authenticatedUser?: AuthenticatedUser;
   loading: boolean;
+  isAdmin: boolean;
+  isOperator: boolean;
   handleLogin: (authenticationResponse: AuthenticationResponse) => Promise<any>;
   handleLogout: () => void;
 }
@@ -81,6 +82,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setAuthenticatedUser(undefined);
   };
 
+  const isAdmin = authenticatedUser?.authorities?.some(
+    (auth) => auth.authority === "ROLE_ADMIN"
+  ) ?? false;
+
+  const isOperator = authenticatedUser?.authorities?.some(
+    (auth) => auth.authority === "ROLE_OPERATOR"
+  ) ?? false;
+
   return (
     <AuthContext.Provider
       value={{
@@ -89,6 +98,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         handleLogin,
         handleLogout,
         loading,
+        isAdmin,
+        isOperator,
       }}
     >
       {children}

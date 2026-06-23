@@ -77,7 +77,7 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
         return this.modelMapper;
     }
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
     public ResponseEntity<List<OrderDTO>> findAll() {
         List<Order> orders = orderService.findAll();
         List<OrderDTO> orderDTOs = orders.stream()

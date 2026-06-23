@@ -1,0 +1,9 @@
+2026-06-09 13:23:54 INFO  - Status do pedido #1 alterado de AGUARDANDO_PAGAMENTO para PAGO por admin
+2026-06-09 13:24:08 INFO  - Status do pedido #3 alterado de EM_PREPARACAO para AGUARDANDO_PAGAMENTO por admin
+2026-06-09 18:45:28 INFO  - Status do pedido #9 alterado de EM_PREPARACAO para EM_TRANSPORTE por admin
+2026-06-09 18:56:06 INFO  - Status do pedido #1 alterado de PAGO para EM_PREPARACAO por admin
+2026-06-09 18:56:37 INFO  - Status do pedido #1 alterado de EM_PREPARACAO para EM_TRANSPORTE por admin
+2026-06-09 19:03:22 INFO  - Status do pedido #1 alterado de EM_TRANSPORTE para CONCLUIDO por admin
+2026-06-09 19:03:42 INFO  - Status do pedido #1 alterado de CONCLUIDO para PAGO por admin
+2026-06-09 19:11:42 INFO  - Novo pedido criado | pedido #35 | usuário: admin | total: R$ 4200.00
+2026-06-09 19:31:27 INFO  - Status do pedido #1 alterado de PAGO para EM_PREPARACAO por admin

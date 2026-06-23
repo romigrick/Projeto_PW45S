@@ -9,7 +9,9 @@ import { Dropdown } from 'primereact/dropdown';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { InputText } from 'primereact/inputtext';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Message } from 'primereact/message';
 import UserService from '../../services/userService';
+import { useAuth } from '../../context/AuthContext';
 import type { IUser } from '../../commons/types';
 
 const ROLE_OPTIONS = [
@@ -34,6 +36,7 @@ export const AdminUsersPage = () => {
   const [selectedRole, setSelectedRole] = useState('ROLE_CLIENTE');
   const [saving, setSaving] = useState(false);
   const toast = useRef<Toast>(null);
+  const { isAdmin } = useAuth();
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -102,25 +105,28 @@ export const AdminUsersPage = () => {
     );
   };
 
-  const actionsTemplate = (row: IUser) => (
-    <div className="flex gap-2">
-      <Button
-        icon={row.active ? 'pi pi-pencil' : 'pi pi-user-plus'}
-        label={row.active ? 'Editar' : 'Ativar'}
-        className="p-button-sm p-button-outlined"
-        severity={row.active ? undefined : 'success'}
-        onClick={() => openDialog(row)}
-      />
-      {row.active && (
+  const actionsTemplate = (row: IUser) => {
+    if (!isAdmin) return null;
+    return (
+      <div className="flex gap-2">
         <Button
-          icon="pi pi-ban"
-          label="Desativar"
-          className="p-button-sm p-button-outlined p-button-danger"
-          onClick={() => handleDeactivate(row)}
+          icon={row.active ? 'pi pi-pencil' : 'pi pi-user-plus'}
+          label={row.active ? 'Editar' : 'Ativar'}
+          className="p-button-sm p-button-outlined"
+          severity={row.active ? undefined : 'success'}
+          onClick={() => openDialog(row)}
         />
-      )}
-    </div>
-  );
+        {row.active && (
+          <Button
+            icon="pi pi-ban"
+            label="Desativar"
+            className="p-button-sm p-button-outlined p-button-danger"
+            onClick={() => handleDeactivate(row)}
+          />
+        )}
+      </div>
+    );
+  };
 
   const q = globalFilter.toLowerCase();
   const filteredUsers = users.filter((u) =>
@@ -161,6 +167,16 @@ export const AdminUsersPage = () => {
       <Toast ref={toast} />
       <ConfirmDialog />
 
+      {!isAdmin && (
+        <div className="mb-3">
+          <Message
+            severity="info"
+            className="w-full"
+            text="Você tem acesso somente de visualização. Apenas administradores podem ativar, editar ou desativar usuários."
+          />
+        </div>
+      )}
+
       <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
         <div className="surface-card border-round p-3 text-center" style={{ borderTop: '3px solid #3b82f6' }}>
           <span className="block text-500 text-sm mb-1">Total de Usuários</span>
@@ -170,7 +186,6 @@ export const AdminUsersPage = () => {
           <span className="block text-500 text-sm mb-1">Ativos</span>
           <span className="block font-bold text-3xl text-green-600">{totalActive}</span>
         </div>
-        {/* Changed: was "Aguardando Ativação", now shows Inativos */}
         <div className="surface-card border-round p-3 text-center" style={{ borderTop: '3px solid #ef4444' }}>
           <span className="block text-500 text-sm mb-1">Inativos</span>
           <span className="block font-bold text-3xl text-red-500">{totalInactive}</span>
@@ -185,7 +200,7 @@ export const AdminUsersPage = () => {
           <Column field="email" header="E-mail" sortable />
           <Column header="Perfil" body={roleTemplate} />
           <Column header="Status" body={statusTemplate} sortable sortField="active" />
-          <Column header="Ações" body={actionsTemplate} style={{ width: '16rem' }} />
+          {isAdmin && <Column header="Ações" body={actionsTemplate} style={{ width: '16rem' }} />}
         </DataTable>
       </div>
 

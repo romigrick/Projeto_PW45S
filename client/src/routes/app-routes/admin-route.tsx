@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export const AdminRoute = () => {
-  const { authenticated, authenticatedUser, loading } = useAuth();
+  const { authenticated, isAdmin, isOperator, loading } = useAuth();
 
   if (loading) {
     return (
@@ -16,11 +16,7 @@ export const AdminRoute = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const isAdmin = authenticatedUser?.authorities?.some(
-    (auth) => auth.authority === 'ROLE_ADMIN'
-  );
-
-  if (!isAdmin) {
+  if (!isAdmin && !isOperator) {
     return <Navigate to="/" replace />;
   }
 
