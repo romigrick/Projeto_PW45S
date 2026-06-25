@@ -117,7 +117,8 @@ export const AdminOrdersPage = () => {
 
     const matchesSearch = globalFilter
       ? String(order.id).includes(globalFilter) ||
-      (order.paymentMethod || '').toLowerCase().includes(globalFilter.toLowerCase())
+      (order.user?.displayName || '').toLowerCase().includes(globalFilter.toLowerCase()) ||
+      (order.user?.username || '').toLowerCase().includes(globalFilter.toLowerCase())
       : true;
 
     const orderDate = order.orderDate ? new Date(order.orderDate) : null;
@@ -151,7 +152,7 @@ export const AdminOrdersPage = () => {
         <span className="p-input-icon-left">
           <i className="pi pi-search" style={{ left: '0.75rem' }} />
           <InputText
-            placeholder="Buscar..."
+            placeholder="Buscar por ID ou comprador..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             style={{ paddingLeft: '2.5rem' }}
@@ -212,7 +213,7 @@ export const AdminOrdersPage = () => {
         >
           <Column field="id" header="# Pedido" sortable style={{ width: '8rem' }} />
           <Column header="Data" body={dateTemplate} sortable sortField="orderDate" />
-          <Column field="paymentMethod" header="Pagamento" />
+          <Column header="Comprador" body={(rowData: IOrder) => rowData.user?.displayName || rowData.user?.username || '-'} sortable sortField="user.displayName" />
           <Column field="shippingOption" header="Frete" />
           <Column header="Total" body={totalTemplate} sortable sortField="total" />
           <Column header="Status" body={statusTemplate} sortable sortField="status" />

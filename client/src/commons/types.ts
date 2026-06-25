@@ -64,6 +64,7 @@ export interface IOrderPayloadItem {
 
 export interface IOrder {
   id?: number;
+  user?: { id?: number; displayName?: string; username?: string; email?: string };
   address?: { id: number };
   shippingOption: 'standard' | 'express';
   paymentMethod: string;
