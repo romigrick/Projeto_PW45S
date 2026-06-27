@@ -115,23 +115,45 @@ export const LoginPage = () => {
 
       const generatedPassword = btoa(googleUser.email).substring(0, 10) + "Aa1!";
 
-      // Uma única chamada — o backend faz find-or-create e retorna o JWT diretamente
-      const googleAuthResponse = await fetch("http://localhost:8044/users/google-auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: googleUser.email,
-          displayName: googleUser.name || googleUser.given_name,
-          generatedPassword,
-        }),
+      const loginAttempt = await login({
+        username: googleUser.email,
+        password: generatedPassword,
       });
 
-      if (!googleAuthResponse.ok) {
-        const errorData = await googleAuthResponse.json().catch(() => ({}));
-        throw new Error(errorData.message || "Falha ao autenticar com Google.");
-      }
+      let authResponse: AuthenticationResponse;
 
-      const authResponse: AuthenticationResponse = await googleAuthResponse.json();
+      if (loginAttempt.status === 200) {
+        authResponse = loginAttempt.data;
+      } else {
+        const registerResponse = await fetch("http://localhost:8044/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            displayName: googleUser.name || googleUser.given_name,
+            email: googleUser.email,
+            username: googleUser.email,
+            password: generatedPassword,
+          }),
+        });
+
+        if (!registerResponse.ok) {
+          const errorData = await registerResponse.json().catch(() => ({}));
+          throw new Error(
+            errorData.message || "Falha ao registrar o usuário via Google."
+          );
+        }
+
+        const secondLoginAttempt = await login({
+          username: googleUser.email,
+          password: generatedPassword,
+        });
+
+        if (secondLoginAttempt.status === 200) {
+          authResponse = secondLoginAttempt.data;
+        } else {
+          throw new Error("Usuário criado, mas não foi possível autenticar a sessão.");
+        }
+      }
 
       await handleLogin(authResponse);
 

@@ -214,11 +214,7 @@ export const AdminOrdersPage = () => {
           <Column field="id" header="# Pedido" sortable style={{ width: '8rem' }} />
           <Column header="Data" body={dateTemplate} sortable sortField="orderDate" />
           <Column header="Comprador" body={(rowData: IOrder) => rowData.user?.displayName || rowData.user?.username || '-'} sortable sortField="user.displayName" />
-          <Column header="Frete" body={(rowData: IOrder) => {
-            const v = (rowData as any).shippingType;
-            if (!v) return '-';
-            return v === 'EXPRESSO' ? 'Expresso' : 'Normal';
-          }} />
+          <Column field="shippingOption" header="Frete" />
           <Column header="Total" body={totalTemplate} sortable sortField="total" />
           <Column header="Status" body={statusTemplate} sortable sortField="status" />
           <Column header="Ações" body={actionsTemplate} style={{ width: '6rem', textAlign: 'center' }} />

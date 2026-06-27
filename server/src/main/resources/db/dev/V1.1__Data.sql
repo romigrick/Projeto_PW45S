@@ -20,7 +20,7 @@ VALUES ('Rua das Flores', '123', 'Curitiba', 'PR', '80000-000', 'Brasil', 1);
 
 -- ID 2 - Operador
 INSERT INTO tb_user (username, display_name, password, active, email)
-VALUES ('operador', 'Operador', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true, 'richardsonromig201101@gmail.com');
+VALUES ('operador', 'Operador', '$2a$10$.PVIfB07x.SfMYTcToxL0.yxcLWU0GbS2NUO1W1QAvqMm/TsFhVem', true, 'operador@email.com');
 INSERT INTO tb_user_authorities (user_id, authority_id) VALUES (2, 2);
 INSERT INTO tb_address (street, number, city, state, zip_code, country, user_id)
 VALUES ('Rua das Margaridas', '789', 'Pato Branco', 'PR', '85501-000', 'Brasil', 2);
@@ -141,45 +141,45 @@ INSERT INTO tb_product (name, description, price, url_imagem, category_id) VALUE
 -- PEDIDOS
 -- =============================================================
 
--- Pedido 1 | Ana | AGUARDANDO_PAGAMENTO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-01-05T09:15:00', 'AGUARDANDO_PAGAMENTO', 3, 3, 2748.90, 'CARTAO_CREDITO', 59.90, 'EXPRESSO');
+-- Pedido 1 | Ana | AGUARDANDO_PAGAMENTO (recém criado, sem histórico de transição)
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-01-05T09:15:00', 'AGUARDANDO_PAGAMENTO', 3, 3, 2748.90);
 
--- Pedido 2 | Carlos | PAGO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-01-10T14:00:00', 'PAGO', 4, 4, 1399.00, 'CARTAO_CREDITO', 0.00, 'NORMAL');
+-- Pedido 2 | Carlos | PAGO (passou por AGUARDANDO_PAGAMENTO → PAGO)
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-01-10T14:00:00', 'PAGO', 4, 4, 1399.00);
 
 -- Pedido 3 | Beatriz | EM_PREPARACAO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-01-15T10:30:00', 'EM_PREPARACAO', 5, 5, 6198.00, 'PIX', 0.00, 'NORMAL');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-01-15T10:30:00', 'EM_PREPARACAO', 5, 5, 6198.00);
 
 -- Pedido 4 | Diego | EM_TRANSPORTE
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-01-20T08:00:00', 'EM_TRANSPORTE', 6, 6, 849.00, 'BOLETO', 59.90, 'EXPRESSO');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-01-20T08:00:00', 'EM_TRANSPORTE', 6, 6, 849.00);
 
 -- Pedido 5 | Fernanda | CONCLUIDO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-01-22T16:45:00', 'CONCLUIDO', 7, 7, 3499.00, 'CARTAO_CREDITO', 59.90, 'EXPRESSO');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-01-22T16:45:00', 'CONCLUIDO', 7, 7, 3499.00);
 
 -- Pedido 6 | Ana | CANCELADO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-01-25T11:00:00', 'CANCELADO', 3, 3, 5499.00, 'PIX', 0.00, 'NORMAL');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-01-25T11:00:00', 'CANCELADO', 3, 3, 5499.00);
 
 -- Pedido 7 | Carlos | CONCLUIDO (pedido mais antigo)
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2025-12-01T09:00:00', 'CONCLUIDO', 4, 4, 1129.99, 'CARTAO_CREDITO', 0.00, 'NORMAL');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2025-12-01T09:00:00', 'CONCLUIDO', 4, 4, 1129.99);
 
 -- Pedido 8 | Beatriz | AGUARDANDO_PAGAMENTO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-02-01T13:20:00', 'AGUARDANDO_PAGAMENTO', 5, 5, 299.90, 'BOLETO', 29.90, 'NORMAL');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-02-01T13:20:00', 'AGUARDANDO_PAGAMENTO', 5, 5, 299.90);
 
 -- Pedido 9 | Diego | EM_PREPARACAO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-02-05T10:10:00', 'EM_PREPARACAO', 6, 6, 4698.00, 'PIX', 59.90, 'EXPRESSO');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-02-05T10:10:00', 'EM_PREPARACAO', 6, 6, 4698.00);
 
 -- Pedido 10 | Fernanda | PAGO
-INSERT INTO tb_order (order_date, status, user_id, address_id, total, payment_method, shipping_cost, shipping_type)
-VALUES ('2026-02-10T15:30:00', 'PAGO', 7, 7, 2199.00, 'CARTAO_CREDITO', 59.90, 'EXPRESSO');
+INSERT INTO tb_order (order_date, status, user_id, address_id, total)
+VALUES ('2026-02-10T15:30:00', 'PAGO', 7, 7, 2199.00);
 
 -- =============================================================
 -- ITENS DOS PEDIDOS
@@ -216,12 +216,16 @@ INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) V
 INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (1, 1, 3699.00, 9, 7);
 INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (2, 1, 2599.00, 9, 10);
 
--- Pedido 10: Nintendo Switch OLED
+-- Pedido 10: Nintendo Switch OLED (product_id=39: 4 produtos por categoria × 9 categorias anteriores + 3º console)
 INSERT INTO tb_order_item (order_index, quantity, price, order_id, product_id) VALUES (1, 1, 2199.00, 10, 39);
 
 -- =============================================================
 -- HISTÓRICO DE STATUS
+-- changed_by = 2 (operador) para todas as transições manuais
 -- =============================================================
+
+-- Pedido 1 | Ana | AGUARDANDO_PAGAMENTO → sem transições ainda
+-- (pedido recém criado, nenhum histórico)
 
 -- Pedido 2 | Carlos | AGUARDANDO_PAGAMENTO → PAGO
 INSERT INTO tb_order_status_history (order_id, previous_status, new_status, changed_at, changed_by, observation)
@@ -264,6 +268,8 @@ INSERT INTO tb_order_status_history (order_id, previous_status, new_status, chan
 VALUES (7, 'EM_PREPARACAO', 'EM_TRANSPORTE', '2025-12-02T08:00:00', 2, 'Enviado via Jadlog.');
 INSERT INTO tb_order_status_history (order_id, previous_status, new_status, changed_at, changed_by, observation)
 VALUES (7, 'EM_TRANSPORTE', 'CONCLUIDO', '2025-12-05T16:00:00', 2, 'Entrega realizada com sucesso.');
+
+-- Pedido 8 | Beatriz | AGUARDANDO_PAGAMENTO → sem transições ainda
 
 -- Pedido 9 | Diego | AGUARDANDO_PAGAMENTO → PAGO → EM_PREPARACAO
 INSERT INTO tb_order_status_history (order_id, previous_status, new_status, changed_at, changed_by, observation)
