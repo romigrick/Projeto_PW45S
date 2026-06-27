@@ -53,4 +53,13 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderAttachment> attachments;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    public enum PaymentMethod {
+        CARTAO_CREDITO,
+        PIX,
+        BOLETO
+    }
 }

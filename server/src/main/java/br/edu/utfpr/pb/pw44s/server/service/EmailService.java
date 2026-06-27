@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -23,6 +24,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void sendOrderStatusUpdate(String toEmail, String customerName,
                                       Long orderId, String previousStatus,
                                       String newStatus, String observation) {
@@ -42,6 +44,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendOrderStatusUpdateWithAttachments(String toEmail, String customerName,
                                                      Long orderId, String previousStatus,
                                                      String newStatus, Map<String, byte[]> filesMap,
@@ -162,6 +165,7 @@ public class EmailService {
         """.formatted(orderId, name, previous, newStatus, observationBlock);
     }
 
+    @Async
     public void sendOrderMultipleAttachmentsNotification(String toEmail, String customerName,
                                                          Long orderId, String currentStatus,
                                                          Map<String, byte[]> filesMap,

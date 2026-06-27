@@ -22,11 +22,14 @@ public class OrderDTO {
     private BigDecimal total;
     private LocalDateTime orderDate;
     private String status;
+    private String paymentMethod;
+
     public OrderDTO(Order order) {
         if (order != null) {
             this.id = order.getId();
             this.total = order.getTotal();
             this.orderDate = order.getOrderDate();
+            this.paymentMethod = order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null;
             this.status = order.getStatus() != null ? order.getStatus().toString() : null;
             if (order.getUser() != null) {
                 this.user = new UserDTO(order.getUser());
@@ -40,7 +43,6 @@ public class OrderDTO {
                     .collect(Collectors.toList());
             } else {
                 this.items = new ArrayList<>();
-            }
-        }
+            }}
     }
 }

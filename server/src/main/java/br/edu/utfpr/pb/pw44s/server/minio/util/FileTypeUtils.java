@@ -32,9 +32,8 @@ public class FileTypeUtils {
                     || type.equalsIgnoreCase("GIF") || type.equalsIgnoreCase("PNG")
                     || type.equalsIgnoreCase("BMP") || type.equalsIgnoreCase("PCX")
                     || type.equalsIgnoreCase("TGA") || type.equalsIgnoreCase("PSD")
-                    || type.equalsIgnoreCase("TIFF")) {
-
-                return IMAGE_TYPE+type;
+                    || type.equalsIgnoreCase("TIFF") || type.equalsIgnoreCase("WEBP")) {
+                return IMAGE_TYPE + type;
             }
 
             if (type.equalsIgnoreCase("mp3") || type.equalsIgnoreCase("OGG")

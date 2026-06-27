@@ -1,2 +1,12 @@
-2026-06-16 22:35:25 INFO  - Novo pedido criado | pedido #36 | usuário: admin | total: R$ 7899.00
-2026-06-16 22:37:08 INFO  - Status do pedido #36 alterado de AGUARDANDO_PAGAMENTO para PAGO por admin
+2026-06-26 22:40:48 INFO  - Status do pedido #1 alterado de CONCLUIDO para EM_TRANSPORTE por admin
+2026-06-26 22:41:14 INFO  - Status do pedido #1 alterado de EM_TRANSPORTE para CONCLUIDO por admin
+2026-06-26 22:43:05 INFO  - Status do pedido #1 alterado de CONCLUIDO para EM_TRANSPORTE por admin
+2026-06-26 22:44:30 INFO  - Status do pedido #1 alterado de EM_TRANSPORTE para EM_PREPARACAO por admin
+2026-06-26 22:44:48 INFO  - Status do pedido #1 alterado de EM_PREPARACAO para EM_TRANSPORTE por admin
+2026-06-26 22:50:47 INFO  - Status do pedido #1 alterado de EM_TRANSPORTE para CONCLUIDO por admin
+2026-06-26 23:06:19 INFO  - Status do pedido #1 alterado de CONCLUIDO para EM_TRANSPORTE por admin
+2026-06-26 23:21:22 INFO  - Status do pedido #1 alterado de EM_TRANSPORTE para EM_PREPARACAO por admin
+2026-06-26 23:21:37 INFO  - Status do pedido #1 alterado de EM_PREPARACAO para EM_TRANSPORTE por admin
+2026-06-26 23:33:18 INFO  - Novo pedido criado | pedido #37 | usuário: admin | total: R$ 5499.00
+2026-06-26 23:42:25 INFO  - Novo pedido criado | pedido #38 | usuário: admin | total: R$ 149.90
+2026-06-26 23:49:25 INFO  - Novo pedido criado | pedido #39 | usuário: admin | total: R$ 4200.00
