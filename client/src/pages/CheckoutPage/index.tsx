@@ -213,17 +213,17 @@ const CheckoutPage = () => {
               <h2 className="step-title">3. Forma de Pagamento</h2>
               <div className="payment-options">
                 <div
-                  className={`payment-option ${paymentMethod === 'CREDIT_CARD' ? 'selected' : ''}`}
-                  onClick={() => setPaymentMethod('CREDIT_CARD')}
+                  className={`payment-option ${paymentMethod === 'CARTAO_CREDITO' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('CARTAO_CREDITO')}
                 >
                   <RadioButton
-                    inputId="CREDIT_CARD"
+                    inputId="CARTAO_CREDITO"
                     name="payment"
-                    value="CREDIT_CARD"
+                    value="CARTAO_CREDITO"
                     onChange={(e) => setPaymentMethod(e.value)}
-                    checked={paymentMethod === 'CREDIT_CARD'}
+                    checked={paymentMethod === 'CARTAO_CREDITO'}
                   />
-                  <label htmlFor="CREDIT_CARD">
+                  <label htmlFor="CARTAO_CREDITO">
                     <i className="pi pi-credit-card" /> Cartão de Crédito
                   </label>
                 </div>
@@ -243,17 +243,17 @@ const CheckoutPage = () => {
                   </label>
                 </div>
                 <div
-                  className={`payment-option ${paymentMethod === 'BOLETO_BANCARIO' ? 'selected' : ''}`}
-                  onClick={() => setPaymentMethod('BOLETO_BANCARIO')}
+                  className={`payment-option ${paymentMethod === 'BOLETO' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('BOLETO')}
                 >
                   <RadioButton
-                    inputId="BOLETO_BANCARIO"
+                    inputId="BOLETO"
                     name="payment"
-                    value="BOLETO_BANCARIO"
+                    value="BOLETO"
                     onChange={(e) => setPaymentMethod(e.value)}
-                    checked={paymentMethod === 'BOLETO_BANCARIO'}
+                    checked={paymentMethod === 'BOLETO'}
                   />
-                  <label htmlFor="BOLETO_BANCARIO">
+                  <label htmlFor="BOLETO">
                     <i className="pi pi-barcode" /> Boleto Bancário
                   </label>
                 </div>
