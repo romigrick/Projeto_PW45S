@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 const NAV_ITEMS = [
   { to: '/admin/dashboard', icon: 'pi-home', label: 'Dashboard' },
   { to: '/admin/orders', icon: 'pi-shopping-cart', label: 'Pedidos' },
+  { to: '/admin/products', icon: 'pi-box', label: 'Produtos', adminOnly: true },
   { to: '/admin/users', icon: 'pi-users', label: 'Usuários' },
   { to: '/', icon: 'pi-storefront', label: 'Ver Loja' },
 ];
@@ -20,8 +21,13 @@ export const AdminLayout = () => {
   };
 
   const sidebarWidth = collapsed ? '64px' : '200px';
-
   const roleLabel = isAdmin ? 'Admin' : isOperator ? 'Operador' : '';
+
+  // Filtra itens exclusivos de admin quando o usuário é apenas operador
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (item.adminOnly && !isAdmin) return false;
+    return true;
+  });
 
   return (
     <div className="flex min-h-screen surface-ground">
@@ -117,7 +123,7 @@ export const AdminLayout = () => {
         </div>
 
         <nav style={{ flex: 1, padding: '0.5rem 0', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {NAV_ITEMS.map(({ to, icon, label }) => (
+          {visibleItems.map(({ to, icon, label }) => (
             <NavLink
               key={to}
               to={to}

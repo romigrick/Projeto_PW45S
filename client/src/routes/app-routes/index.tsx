@@ -23,6 +23,7 @@ import { AdminDashboard } from '../../pages/AdminDashboard';
 import { AdminOrdersPage } from '../../pages/AdminOrdersPage';
 import { AdminOrderDetailPage } from '../../pages/AdminOrderDetailPage';
 import { AdminUsersPage } from '../../pages/AdminUsersPage';
+import { AdminProductFormPage } from '../../pages/AdminProductFormPage';
 
 export const AppRoutes = () => {
   return (
@@ -56,6 +57,9 @@ export const AppRoutes = () => {
           <Route path="/admin/orders" element={<AdminOrdersPage />} />
           <Route path="/admin/orders/:id" element={<AdminOrderDetailPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/products" element={<ProductListPage />} />
+          <Route path="/admin/products/new" element={<AdminProductFormPage />} />
+          <Route path="/admin/products/:id" element={<AdminProductFormPage />} />
         </Route>
       </Route>
     </Routes>

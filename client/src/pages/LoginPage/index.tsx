@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
@@ -9,7 +9,6 @@ import type { AuthenticationResponse, IUserLogin } from "@/commons/types";
 import { useAuth } from "@/context/AuthContext";
 import AuthService from "@/services/authService";
 import { Toast } from "primereact/toast";
-import { useEffect } from "react";
 
 export const LoginPage = () => {
   const {
@@ -25,41 +24,46 @@ export const LoginPage = () => {
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const { handleLogin } = useAuth();
 
+  // Utilitário: verifica se o usuário autenticado tem role admin
+  const isAdminUser = (authResponse: AuthenticationResponse): boolean => {
+    return (
+      authResponse.user?.authorities?.some(
+        (a) => a.authority === "ROLE_ADMIN"
+      ) ?? false
+    );
+  };
+
   const onSubmit = async (userLogin: IUserLogin) => {
     setLoading(true);
     try {
       const response = await login(userLogin);
       if (response.status === 200) {
         const authResponse = response.data as AuthenticationResponse;
-        
-        // 1. Salva a sessão no contexto
-        handleLogin(authResponse);
-        
+
+        await handleLogin(authResponse);
+
         toast.current?.show({
           severity: "success",
           summary: "Sucesso",
           detail: "Login efetuado com sucesso.",
-          life: 3000,
+          life: 2000,
         });
 
-        // 2. Verifica o papel do usuário para redirecionar
-        // Ajuste o caminho 'authResponse.user?.role' se a sua tipagem for diferente (ex: authResponse.role)
-        const userRole = authResponse.user?.role; 
-
-        if (userRole === "ADMIN") {
+        // Redireciona com base nas authorities do token, não em um campo "role"
+        if (isAdminUser(authResponse)) {
           navigate("/admin/dashboard", { replace: true });
         } else {
-          navigate("/", { replace: true }); // Rota da loja/cliente comum
+          navigate("/", { replace: true });
         }
       } else {
         toast.current?.show({
           severity: "error",
           summary: "Erro",
-          detail: response.message || "Falha ao efetuar login.",
+          detail: response.message || "Usuário ou senha inválidos.",
           life: 3000,
         });
       }
-    } catch (error) {
+    } catch {
       toast.current?.show({
         severity: "error",
         summary: "Erro",
@@ -77,7 +81,6 @@ export const LoginPage = () => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     const redirectUri = "http://localhost:5173/login";
     const scope = "openid email profile";
-
     const responseType = "token";
 
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
@@ -92,7 +95,6 @@ export const LoginPage = () => {
     if (hash) {
       const params = new URLSearchParams(hash.substring(1));
       const accessToken = params.get("access_token");
-
       if (accessToken) {
         handleGoogleCallback(accessToken);
       }
@@ -102,30 +104,27 @@ export const LoginPage = () => {
   const handleGoogleCallback = async (accessToken: string) => {
     setLoading(true);
     try {
-      // 1. Pega os dados do usuário no Google
-      const googleResponse = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`);
+      const googleResponse = await fetch(
+        `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`
+      );
       const googleUser = await googleResponse.json();
 
       if (!googleUser.email) {
         throw new Error("Não foi possível obter o e-mail da conta do Google.");
       }
 
-      // Senha gerada para a conta baseada no Google (isso atende a exigência do seu banco)
       const generatedPassword = btoa(googleUser.email).substring(0, 10) + "Aa1!";
-      
-      // 2. TENTA FAZER LOGIN PRIMEIRO usando o AuthService existente
-      const loginAttempt = await login({ 
-        username: googleUser.email, 
-        password: generatedPassword 
+
+      const loginAttempt = await login({
+        username: googleUser.email,
+        password: generatedPassword,
       });
 
-      let authResponse;
+      let authResponse: AuthenticationResponse;
 
-      // Se o login der certo (status 200), o usuário já existe no banco.
       if (loginAttempt.status === 200) {
         authResponse = loginAttempt.data;
       } else {
-        // 3. Se o login falhou, TENTA CADASTRAR O USUÁRIO
         const registerResponse = await fetch("http://localhost:8044/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -133,19 +132,20 @@ export const LoginPage = () => {
             displayName: googleUser.name || googleUser.given_name,
             email: googleUser.email,
             username: googleUser.email,
-            password: generatedPassword
+            password: generatedPassword,
           }),
         });
 
         if (!registerResponse.ok) {
           const errorData = await registerResponse.json().catch(() => ({}));
-          throw new Error(errorData.message || "Falha ao registrar o usuário via Google.");
+          throw new Error(
+            errorData.message || "Falha ao registrar o usuário via Google."
+          );
         }
 
-        // 4. Se o cadastro deu certo, faz o LOGIN novamente para pegar o Token
-        const secondLoginAttempt = await login({ 
-          username: googleUser.email, 
-          password: generatedPassword 
+        const secondLoginAttempt = await login({
+          username: googleUser.email,
+          password: generatedPassword,
         });
 
         if (secondLoginAttempt.status === 200) {
@@ -155,18 +155,21 @@ export const LoginPage = () => {
         }
       }
 
-      // 5. Conclui o fluxo salvando o token e redirecionando
-      handleLogin(authResponse);
+      await handleLogin(authResponse);
 
       toast.current?.show({
         severity: "success",
         summary: "Sucesso",
         detail: "Login com Google efetuado com sucesso.",
-        life: 3000,
+        life: 2000,
       });
-      
-      navigate("/admin/dashboard", { replace: true });
 
+      // Mesmo critério: authorities, não "role"
+      if (isAdminUser(authResponse)) {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     } catch (error: any) {
       toast.current?.show({
         severity: "error",
@@ -176,6 +179,7 @@ export const LoginPage = () => {
       });
     } finally {
       setLoading(false);
+      setLoadingGoogle(false);
     }
   };
 
@@ -227,7 +231,7 @@ export const LoginPage = () => {
               Usuário
             </label>
             <span className="p-input-icon-left w-full">
-              <i className="pi pi-user text-500" style={{ left: '0.75rem' }} />
+              <i className="pi pi-user text-500" style={{ left: "0.75rem" }} />
               <Controller
                 name="username"
                 control={control}
@@ -238,13 +242,15 @@ export const LoginPage = () => {
                     placeholder="Digite seu usuário"
                     {...field}
                     className={errors.username ? "p-invalid w-full" : "w-full"}
-                    style={{ paddingLeft: '2.5rem' }}
+                    style={{ paddingLeft: "2.5rem" }}
                     disabled={loading || isSubmitting || loadingGoogle}
                   />
                 )}
               />
             </span>
-            {errors.username && <small className="p-error block mt-1">{errors.username.message}</small>}
+            {errors.username && (
+              <small className="p-error block mt-1">{errors.username.message}</small>
+            )}
           </div>
 
           <div className="field mb-4">
@@ -273,7 +279,9 @@ export const LoginPage = () => {
                 />
               )}
             />
-            {errors.password && <small className="p-error block mt-1">{errors.password.message}</small>}
+            {errors.password && (
+              <small className="p-error block mt-1">{errors.password.message}</small>
+            )}
           </div>
 
           <Button

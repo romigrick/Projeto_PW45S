@@ -4,25 +4,46 @@ import { api } from '@/lib/axios';
 const productURL = "/products";
 
 /**
- * Função para salvar um produto
- * @param product - Dados do produto que será salvo
- * @returns - Retorna uma Promise com a resposta da API
- **/
-const save = async (product: IProduct): Promise<IResponse> => {
+ * Salva um produto com imagem via multipart/form-data
+ * Endpoint: POST /products/upload
+ * Parts: "product" (JSON) + "image" (arquivo)
+ */
+const save = async (product: IProduct, imageFile?: File | null): Promise<IResponse> => {
   let response = {} as IResponse;
   try {
-    const data = await api.post(productURL, product);
+    const formData = new FormData();
+
+    // Part "product": JSON serializado como Blob com content-type application/json
+    const productBlob = new Blob([JSON.stringify({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      urlImagem: product.urlImagem || '',
+      category: product.category ? { id: product.category.id } : undefined,
+    })], { type: 'application/json' });
+    formData.append('product', productBlob);
+
+    // Part "image": arquivo de imagem
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    const data = await api.post(`${productURL}/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
     response = {
-      status: 200,
+      status: data.status,
       success: true,
-      message: "Produto salvo com sucesso!",
+      message: 'Produto salvo com sucesso!',
       data: data.data,
     };
   } catch (err: any) {
     response = {
       status: err.response?.status || 500,
       success: false,
-      message: "Falha ao salvar produto",
+      message: err.response?.data?.message || 'Falha ao salvar produto',
       data: err.response?.data || err.message,
     };
   }
@@ -30,10 +51,8 @@ const save = async (product: IProduct): Promise<IResponse> => {
 };
 
 /**
- * Função para buscar todos os produtos
- * @returns - Retorna uma Promise com a resposta da API
- * com a lista de produtos
- **/
+ * Busca todos os produtos
+ */
 const findAll = async (): Promise<IResponse> => {
   let response = {} as IResponse;
   try {
@@ -41,14 +60,14 @@ const findAll = async (): Promise<IResponse> => {
     response = {
       status: 200,
       success: true,
-      message: "Lista de produtos carregada com sucesso!",
+      message: 'Lista de produtos carregada com sucesso!',
       data: data.data,
     };
   } catch (err: any) {
     response = {
       status: err.response?.status || 500,
       success: false,
-      message: "Falha ao carregar a lista de produtos",
+      message: 'Falha ao carregar a lista de produtos',
       data: err.response?.data || err.message,
     };
   }
@@ -56,12 +75,7 @@ const findAll = async (): Promise<IResponse> => {
 };
 
 /**
- * Função para buscar produtos paginados
- * @param page - Página (padrão 0)
- * @param size - Tamanho da página (padrão 20)
- * @param order - Campo para ordenação (opcional)
- * @param asc - Ordem ascendente (opcional, padrão true)
- * @returns - Retorna uma Promise com a resposta da API
+ * Busca produtos paginados
  */
 const findAllPaged = async (page: number = 0, size: number = 20, order?: string, asc: boolean = true): Promise<IResponse> => {
   let response = {} as IResponse;
@@ -73,20 +87,20 @@ const findAllPaged = async (page: number = 0, size: number = 20, order?: string,
     const params = new URLSearchParams({
       page: page.toString(),
       size: size.toString(),
-      ...(sortParam && { sort: sortParam })
+      ...(sortParam && { sort: sortParam }),
     });
     const data = await api.get(`${productURL}/page?${params}`);
     response = {
       status: 200,
       success: true,
-      message: "Produtos paginados carregados com sucesso!",
+      message: 'Produtos paginados carregados com sucesso!',
       data: data.data,
     };
   } catch (err: any) {
     response = {
       status: err.response?.status || 500,
       success: false,
-      message: "Falha ao carregar produtos paginados",
+      message: 'Falha ao carregar produtos paginados',
       data: err.response?.data || err.message,
     };
   }
@@ -94,9 +108,7 @@ const findAllPaged = async (page: number = 0, size: number = 20, order?: string,
 };
 
 /**
- * Função para remover um produto
- * @param id - Recebe o id do produto que será removido
- * @returns - Retorna uma Promise com a resposta da API
+ * Remove um produto pelo id
  */
 const remove = async (id: number): Promise<IResponse> => {
   let response = {} as IResponse;
@@ -105,14 +117,14 @@ const remove = async (id: number): Promise<IResponse> => {
     response = {
       status: 200,
       success: true,
-      message: "Produto removido com sucesso!",
+      message: 'Produto removido com sucesso!',
       data: data.data,
     };
   } catch (err: any) {
     response = {
       status: err.response?.status || 500,
       success: false,
-      message: "Falha ao remover o produto",
+      message: 'Falha ao remover o produto',
       data: err.response?.data || err.message,
     };
   }
@@ -120,9 +132,7 @@ const remove = async (id: number): Promise<IResponse> => {
 };
 
 /**
- * Função para buscar um produto pelo id
- * @param id - Recebe o id do produto que será buscado
- * @returns - Retorna uma Promise com a resposta da API
+ * Busca um produto pelo id
  */
 const findById = async (id: number): Promise<IResponse> => {
   let response = {} as IResponse;
@@ -131,14 +141,14 @@ const findById = async (id: number): Promise<IResponse> => {
     response = {
       status: 200,
       success: true,
-      message: "Produto carregado com sucesso!",
+      message: 'Produto carregado com sucesso!',
       data: data.data,
     };
   } catch (err: any) {
     response = {
       status: err.response?.status || 500,
       success: false,
-      message: "Falha ao carregar o produto",
+      message: 'Falha ao carregar o produto',
       data: err.response?.data || err.message,
     };
   }
@@ -146,9 +156,7 @@ const findById = async (id: number): Promise<IResponse> => {
 };
 
 /**
- * Função para buscar produtos por nome da categoria
- * @param categoryName - Nome da categoria
- * @returns - Retorna uma Promise com a resposta da API
+ * Busca produtos por nome da categoria
  */
 const findByCategoryName = async (categoryName: string): Promise<IResponse> => {
   let response = {} as IResponse;
@@ -157,21 +165,20 @@ const findByCategoryName = async (categoryName: string): Promise<IResponse> => {
     response = {
       status: 200,
       success: true,
-      message: "Produtos da categoria carregados com sucesso!",
+      message: 'Produtos da categoria carregados com sucesso!',
       data: data.data,
     };
   } catch (err: any) {
     response = {
       status: err.response?.status || 500,
       success: false,
-      message: "Falha ao carregar produtos da categoria",
+      message: 'Falha ao carregar produtos da categoria',
       data: err.response?.data || err.message,
     };
   }
   return response;
 };
 
-// Objeto que exporta todas as funções
 const ProductService = {
   save,
   findAll,

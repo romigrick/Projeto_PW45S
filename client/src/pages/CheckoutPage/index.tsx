@@ -204,17 +204,17 @@ const CheckoutPage = () => {
             <div className="checkout-step">
               <h2 className="step-title">3. Forma de Pagamento</h2>
               <div className="payment-options">
-                <div className={`payment-option ${paymentMethod === 'credit-card' ? 'selected' : ''}`} onClick={() => setPaymentMethod('credit-card')}>
-                    <RadioButton inputId="credit-card" name="payment" value="credit-card" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === 'credit-card'} />
-                    <label htmlFor="credit-card"><i className="pi pi-credit-card" /> Cartão de Crédito</label>
+                <div className={`payment-option ${paymentMethod === ' CARTAO_CREDITO' ? 'selected' : ''}`} onClick={() => setPaymentMethod(' CARTAO_CREDITO')}>
+                    <RadioButton inputId=" CARTAO_CREDITO" name="payment" value=" CARTAO_CREDITO" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === ' CARTAO_CREDITO'} />
+                    <label htmlFor=" CARTAO_CREDITO"><i className="pi pi-credit-card" /> Cartão de Crédito</label>
                 </div>
-                <div className={`payment-option ${paymentMethod === 'pix' ? 'selected' : ''}`} onClick={() => setPaymentMethod('pix')}>
-                    <RadioButton inputId="pix" name="payment" value="pix" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === 'pix'} />
-                    <label htmlFor="pix"><i className="pi pi-qrcode" /> Pix</label>
+                <div className={`payment-option ${paymentMethod === 'PIX' ? 'selected' : ''}`} onClick={() => setPaymentMethod('PIX')}>
+                    <RadioButton inputId="PIX" name="payment" value="PIX" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === 'PIX'} />
+                    <label htmlFor="PIX"><i className="pi pi-qrcode" /> PIX</label>
                 </div>
-                 <div className={`payment-option ${paymentMethod === 'boleto' ? 'selected' : ''}`} onClick={() => setPaymentMethod('boleto')}>
-                    <RadioButton inputId="boleto" name="payment" value="boleto" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === 'boleto'} />
-                    <label htmlFor="boleto"><i className="pi pi-barcode" /> Boleto Bancário</label>
+                 <div className={`payment-option ${paymentMethod === 'BOLETO' ? 'selected' : ''}`} onClick={() => setPaymentMethod('BOLETO')}>
+                    <RadioButton inputId="BOLETO" name="payment" value="BOLETO" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === 'BOLETO'} />
+                    <label htmlFor="BOLETO"><i className="pi pi-barcode" /> Boleto Bancário</label>
                 </div>
               </div>
             </div>
