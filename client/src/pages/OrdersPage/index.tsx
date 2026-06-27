@@ -85,22 +85,31 @@ const OrdersPage = () => {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'delivered':
+    switch (status) {
+      case 'PAGO':
+      case 'CONCLUIDO':
         return 'text-green-600';
+      case 'EM_TRANSPORTE':
+        return 'text-blue-600';
+      case 'EM_PREPARACAO':
+        return 'text-purple-600';
+      case 'CANCELADO':
+        return 'text-red-600';
+      case 'AGUARDANDO_PAGAMENTO':
       default:
         return 'text-yellow-600';
     }
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'Pendente';
-      case 'delivered':
-        return 'Entregue';
-      default:
-        return status;
+    switch (status) {
+      case 'AGUARDANDO_PAGAMENTO': return 'Aguardando Pagamento';
+      case 'PAGO':                 return 'Pago';
+      case 'EM_PREPARACAO':        return 'Em Preparação';
+      case 'EM_TRANSPORTE':        return 'Em Transporte';
+      case 'CONCLUIDO':            return 'Concluído';
+      case 'CANCELADO':            return 'Cancelado';
+      default:                     return status;
     }
   };
 

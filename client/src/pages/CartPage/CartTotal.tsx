@@ -15,7 +15,7 @@ const CartTotal: React.FC<CartTotalProps> = ({ total, onFinalizeOrder, itemCount
     }).format(price);
   };
 
-  const shipping = calculateShipping(total);
+  const shipping = calculateShipping(total, 'NORMAL');
   const finalTotal = total + shipping;
 
   return (
@@ -40,12 +40,6 @@ const CartTotal: React.FC<CartTotalProps> = ({ total, onFinalizeOrder, itemCount
           <span className="total-value">{formatPrice(finalTotal)}</span>
         </div>
       </div>
-
-      {total > 1000 && (
-        <div className="free-shipping">
-          🎉 Parabéns! Você ganhou frete grátis!
-        </div>
-      )}
 
       <button
         className="finalize-button"

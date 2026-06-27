@@ -65,7 +65,7 @@ const ProductDetailPage = () => {
     setShippingInfo(null);
     setTimeout(() => {
       if (product) {
-        const cost = calculateShipping(product.price * quantity);
+        const cost = calculateShipping(product.price * quantity, 'NORMAL');
         const time = Math.floor(Math.random() * 5) + 3; // Random time: 3-8 days
         setShippingInfo({ cost, time: `em até ${time} dias úteis` });
       }

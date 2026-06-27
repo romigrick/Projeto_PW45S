@@ -383,7 +383,18 @@ export const AdminDashboard = () => {
                   : '-'
               }
             />
-            <Column field="paymentMethod" header="Pagamento" style={{ minWidth: '8rem' }} />
+            <Column
+              header="Pagamento"
+              style={{ minWidth: '8rem' }}
+              body={(row: IOrder) => {
+                const map: Record<string, string> = {
+                  CARTAO_CREDITO: 'Cartão de Crédito',
+                  PIX: 'Pix',
+                  BOLETO: 'Boleto Bancário',
+                };
+                return map[(row as any).paymentMethod] || (row as any).paymentMethod || '-';
+              }}
+            />
             <Column
               header="Total"
               style={{ minWidth: '8rem' }}
