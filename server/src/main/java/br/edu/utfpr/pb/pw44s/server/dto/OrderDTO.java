@@ -23,12 +23,16 @@ public class OrderDTO {
     private LocalDateTime orderDate;
     private String status;
     private String paymentMethod;
+    private String shippingType;
+    private BigDecimal shippingCost;
 
     public OrderDTO(Order order) {
         if (order != null) {
             this.id = order.getId();
             this.total = order.getTotal();
             this.orderDate = order.getOrderDate();
+            this.shippingType = order.getShippingType() != null ? order.getShippingType().name() : null;
+            this.shippingCost = order.getShippingCost();
             this.paymentMethod = order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null;
             this.status = order.getStatus() != null ? order.getStatus().toString() : null;
             if (order.getUser() != null) {

@@ -62,4 +62,14 @@ public class Order {
         PIX,
         BOLETO
     }
+
+    @Enumerated(EnumType.STRING)
+    private ShippingType shippingType;
+
+    public enum ShippingType {
+        NORMAL,
+        EXPRESSO
+    }
+
+    private BigDecimal shippingCost;
 }

@@ -9,6 +9,8 @@ import br.edu.utfpr.pb.pw44s.server.service.IOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -57,6 +59,23 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long> implements IO
         for (int i = 0; i < order.getItems().size(); i++) {
             order.getItems().get(i).setOrderIndex(i);
         }
+
+        BigDecimal freeThreshold = new BigDecimal("1000");
+
+        if (order.getShippingType() == Order.ShippingType.EXPRESSO) {
+            order.setShippingCost(
+                    order.getTotal().compareTo(freeThreshold) >= 0
+                            ? new BigDecimal("45.00")
+                            : new BigDecimal("59.90")
+            );
+        } else {
+            order.setShippingCost(
+                    order.getTotal().compareTo(freeThreshold) >= 0
+                            ? BigDecimal.ZERO
+                            : new BigDecimal("29.90")
+            );
+        }
+
         Order savedOrder = orderRepository.save(order);
         orderItemService.createItemsForOrder(savedOrder.getId(), order.getItems());
 
