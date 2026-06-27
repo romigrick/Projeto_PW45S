@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import AddressService from '../../services/addressService';
-import type { IAddress, ICartItem, IOrder } from '../../commons/types';
+import type { IAddress, IOrder } from '../../commons/types';
 import OrderService from '../../services/orderService';
 import { calculateShipping } from '../../lib/shipping';
 import { useNotification } from '../../context/NotificationContext';
@@ -13,8 +13,6 @@ import { RadioButton } from 'primereact/radiobutton';
 import { Dialog } from 'primereact/dialog';
 import './styles.css';
 
-
-
 const CheckoutPage = () => {
   const { items, getTotalPrice, clearCart } = useCart();
   const { addNotification } = useNotification();
@@ -23,7 +21,7 @@ const CheckoutPage = () => {
   const [addresses, setAddresses] = useState<IAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<IAddress | null>(null);
   const [shippingOption, setShippingOption] = useState<'standard' | 'express'>('standard');
-  const [paymentMethod, setPaymentMethod] = useState<string>('credit-card');
+  const [paymentMethod, setPaymentMethod] = useState<string>('CREDIT_CARD');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [isOrderSuccessNavigating, setIsOrderSuccessNavigating] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<IOrder | null>(null);
@@ -31,14 +29,11 @@ const CheckoutPage = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
+
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
@@ -50,45 +45,35 @@ const CheckoutPage = () => {
           }
         }
       } catch (error) {
-        console.error("Failed to fetch addresses", error);
+        console.error('Failed to fetch addresses', error);
       }
     };
     fetchAddresses();
   }, []);
 
   useEffect(() => {
-    if (items.length === 0 && !isOrderSuccessNavigating) { 
+    if (items.length === 0 && !isOrderSuccessNavigating) {
       navigate('/cart');
     }
-  }, [items, navigate, isOrderSuccessNavigating]); 
+  }, [items, navigate, isOrderSuccessNavigating]);
+
   const subtotal = getTotalPrice();
-  let shippingCost;
 
+  let shippingCost: number;
   if (subtotal > 1000) {
-    if (shippingOption === 'standard') {
-      shippingCost = 0;
-    } else { 
-      shippingCost = 45.00; 
-    }
+    shippingCost = shippingOption === 'standard' ? 0 : 45.0;
   } else {
-
-    const baseStandardShipping = calculateShipping(subtotal); 
-    if (shippingOption === 'standard') {
-      shippingCost = baseStandardShipping; 
-    } else { 
-      shippingCost = baseStandardShipping + 30.00; 
-    }
+    const baseStandard = calculateShipping(subtotal);
+    shippingCost = shippingOption === 'standard' ? baseStandard : baseStandard + 30.0;
   }
+
   const total = subtotal + shippingCost;
+  const displayStandardCost = subtotal > 1000 ? 0 : calculateShipping(subtotal);
+  const displayExpressCost = subtotal > 1000 ? 45.0 : calculateShipping(subtotal) + 30.0;
 
-  const displayStandardCost = subtotal > 1000 ? 0 : calculateShipping(subtotal); 
-  const displayExpressCost = subtotal > 1000 ? 45.00 : calculateShipping(subtotal) + 30.00; 
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-  };
-  
-  
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       addNotification('Selecione um endereço para continuar.', 'error');
@@ -97,35 +82,35 @@ const CheckoutPage = () => {
 
     const orderData = {
       address: { id: selectedAddress.id },
-      shippingOption: shippingOption,
-      paymentMethod: paymentMethod,
-      items: items.map(item => ({
+      shippingOption,
+      paymentMethod, // já vem em uppercase: CREDIT_CARD, PIX, BOLETO_BANCARIO
+      items: items.map((item) => ({
         product: { id: item.product.id },
         quantity: item.quantity,
-        price: item.product.price
+        price: item.product.price,
       })),
-      total: total
+      total,
     };
 
     try {
       const response = await OrderService.createOrder(orderData);
       if (response.success) {
-        setCreatedOrder(response.data as IOrder); 
-        setShowSuccessDialog(true); 
+        setCreatedOrder(response.data as IOrder);
+        setShowSuccessDialog(true);
       } else {
         addNotification(response.message || 'Erro ao finalizar pedido.', 'error');
       }
     } catch (error) {
-      console.error("Failed to place order", error);
+      console.error('Failed to place order', error);
       addNotification('Erro ao finalizar pedido. Tente novamente mais tarde.', 'error');
     }
   };
 
   const handleSuccessDialogHide = () => {
-    clearCart(true); 
-    setShowSuccessDialog(false); 
-    setIsOrderSuccessNavigating(true); 
-    navigate('/orders'); 
+    clearCart(true);
+    setShowSuccessDialog(false);
+    setIsOrderSuccessNavigating(true);
+    navigate('/orders');
   };
 
   const successDialogFooter = (
@@ -133,7 +118,7 @@ const CheckoutPage = () => {
       <Button
         label="Ver Meus Pedidos"
         icon="pi pi-arrow-right"
-        onClick={handleSuccessDialogHide} 
+        onClick={handleSuccessDialogHide}
         className="success-dialog-button"
       />
     </div>
@@ -148,18 +133,18 @@ const CheckoutPage = () => {
         <h1>Finalizar Compra</h1>
         <div className="checkout-grid">
           <div className="checkout-steps">
-            {/* Step 1: Address */}
+            {/* Step 1: Endereço */}
             <div className="checkout-step">
               <h2 className="step-title">1. Endereço de Entrega</h2>
               {addresses.length > 0 ? (
                 <div className="address-list">
-                  {addresses.map(address => (
-                    <div 
-                      key={address.id} 
+                  {addresses.map((address) => (
+                    <div
+                      key={address.id}
                       className={`address-card ${selectedAddress?.id === address.id ? 'selected' : ''}`}
                       onClick={() => setSelectedAddress(address)}
                     >
-                      <RadioButton 
+                      <RadioButton
                         inputId={`address-${address.id}`}
                         name="address"
                         value={address}
@@ -176,22 +161,45 @@ const CheckoutPage = () => {
               ) : (
                 <p>Nenhum endereço encontrado.</p>
               )}
-              <Button label="Adicionar Novo Endereço" icon="pi pi-plus" className="p-button-text mt-2" onClick={() => navigate('/addresses')} />
+              <Button
+                label="Adicionar Novo Endereço"
+                icon="pi pi-plus"
+                className="p-button-text mt-2"
+                onClick={() => navigate('/addresses')}
+              />
             </div>
 
-            {/* Step 2: Shipping */}
+            {/* Step 2: Frete */}
             <div className="checkout-step">
               <h2 className="step-title">2. Método de Envio</h2>
               <div className="shipping-options">
-                <div className={`shipping-option ${shippingOption === 'standard' ? 'selected' : ''}`} onClick={() => setShippingOption('standard')}>
-                  <RadioButton inputId="standard" name="shipping" value="standard" onChange={(e) => setShippingOption(e.value)} checked={shippingOption === 'standard'} />
+                <div
+                  className={`shipping-option ${shippingOption === 'standard' ? 'selected' : ''}`}
+                  onClick={() => setShippingOption('standard')}
+                >
+                  <RadioButton
+                    inputId="standard"
+                    name="shipping"
+                    value="standard"
+                    onChange={(e) => setShippingOption(e.value)}
+                    checked={shippingOption === 'standard'}
+                  />
                   <label htmlFor="standard">
                     <strong>Envio Normal ({formatCurrency(displayStandardCost)})</strong>
                     <p>Receba em até 7 dias úteis</p>
                   </label>
                 </div>
-                <div className={`shipping-option ${shippingOption === 'express' ? 'selected' : ''}`} onClick={() => setShippingOption('express')}>
-                  <RadioButton inputId="express" name="shipping" value="express" onChange={(e) => setShippingOption(e.value)} checked={shippingOption === 'express'} />
+                <div
+                  className={`shipping-option ${shippingOption === 'express' ? 'selected' : ''}`}
+                  onClick={() => setShippingOption('express')}
+                >
+                  <RadioButton
+                    inputId="express"
+                    name="shipping"
+                    value="express"
+                    onChange={(e) => setShippingOption(e.value)}
+                    checked={shippingOption === 'express'}
+                  />
                   <label htmlFor="express">
                     <strong>Envio Expresso ({formatCurrency(displayExpressCost)})</strong>
                     <p>Receba em até 2 dias úteis</p>
@@ -200,55 +208,95 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Step 3: Payment */}
+            {/* Step 3: Pagamento */}
             <div className="checkout-step">
               <h2 className="step-title">3. Forma de Pagamento</h2>
               <div className="payment-options">
-                <div className={`payment-option ${paymentMethod === ' CARTAO_CREDITO' ? 'selected' : ''}`} onClick={() => setPaymentMethod(' CARTAO_CREDITO')}>
-                    <RadioButton inputId=" CARTAO_CREDITO" name="payment" value=" CARTAO_CREDITO" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === ' CARTAO_CREDITO'} />
-                    <label htmlFor=" CARTAO_CREDITO"><i className="pi pi-credit-card" /> Cartão de Crédito</label>
+                <div
+                  className={`payment-option ${paymentMethod === 'CREDIT_CARD' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('CREDIT_CARD')}
+                >
+                  <RadioButton
+                    inputId="CREDIT_CARD"
+                    name="payment"
+                    value="CREDIT_CARD"
+                    onChange={(e) => setPaymentMethod(e.value)}
+                    checked={paymentMethod === 'CREDIT_CARD'}
+                  />
+                  <label htmlFor="CREDIT_CARD">
+                    <i className="pi pi-credit-card" /> Cartão de Crédito
+                  </label>
                 </div>
-                <div className={`payment-option ${paymentMethod === 'PIX' ? 'selected' : ''}`} onClick={() => setPaymentMethod('PIX')}>
-                    <RadioButton inputId="PIX" name="payment" value="PIX" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === 'PIX'} />
-                    <label htmlFor="PIX"><i className="pi pi-qrcode" /> PIX</label>
+                <div
+                  className={`payment-option ${paymentMethod === 'PIX' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('PIX')}
+                >
+                  <RadioButton
+                    inputId="PIX"
+                    name="payment"
+                    value="PIX"
+                    onChange={(e) => setPaymentMethod(e.value)}
+                    checked={paymentMethod === 'PIX'}
+                  />
+                  <label htmlFor="PIX">
+                    <i className="pi pi-qrcode" /> Pix
+                  </label>
                 </div>
-                 <div className={`payment-option ${paymentMethod === 'BOLETO' ? 'selected' : ''}`} onClick={() => setPaymentMethod('BOLETO')}>
-                    <RadioButton inputId="BOLETO" name="payment" value="BOLETO" onChange={(e) => setPaymentMethod(e.value)} checked={paymentMethod === 'BOLETO'} />
-                    <label htmlFor="BOLETO"><i className="pi pi-barcode" /> Boleto Bancário</label>
+                <div
+                  className={`payment-option ${paymentMethod === 'BOLETO_BANCARIO' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('BOLETO_BANCARIO')}
+                >
+                  <RadioButton
+                    inputId="BOLETO_BANCARIO"
+                    name="payment"
+                    value="BOLETO_BANCARIO"
+                    onChange={(e) => setPaymentMethod(e.value)}
+                    checked={paymentMethod === 'BOLETO_BANCARIO'}
+                  />
+                  <label htmlFor="BOLETO_BANCARIO">
+                    <i className="pi pi-barcode" /> Boleto Bancário
+                  </label>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Order Summary */}
+          {/* Resumo do Pedido */}
           <div className="order-summary">
             <h3>Resumo do Pedido</h3>
             <div className="summary-items">
-              {items.map(item => (
+              {items.map((item) => (
                 <div key={item.product.id} className="summary-item">
                   <img src={item.product.urlImagem} alt={item.product.name} />
                   <div className="item-info">
                     <p>{item.product.name}</p>
                     <p>Qtd: {item.quantity}</p>
                   </div>
-                  <p className="item-price">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.product.price * item.quantity)}</p>
+                  <p className="item-price">
+                    {formatCurrency(item.product.price * item.quantity)}
+                  </p>
                 </div>
               ))}
             </div>
             <div className="summary-total">
-              <div><span>Subtotal</span><span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(subtotal)}</span></div>
-              <div><span>Frete</span><span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(shippingCost)}</span></div>
-              <div className="total"><span>Total</span><span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}</span></div>
+              <div><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
+              <div><span>Frete</span><span>{formatCurrency(shippingCost)}</span></div>
+              <div className="total"><span>Total</span><span>{formatCurrency(total)}</span></div>
             </div>
-            <Button label="Finalizar Compra" className="w-full mt-3 finalize-button" onClick={handlePlaceOrder} disabled={!selectedAddress} />
+            <Button
+              label="Finalizar Compra"
+              className="w-full mt-3 finalize-button"
+              onClick={handlePlaceOrder}
+              disabled={!selectedAddress}
+            />
           </div>
         </div>
       </main>
       <Footer />
-      
-      {/* Success Dialog */}
+
+      {/* Dialog de sucesso */}
       <Dialog
-        header="Pedido Concluido!"
+        header="Pedido Concluído!"
         visible={showSuccessDialog}
         className={dialogClassName}
         footer={successDialogFooter}
@@ -256,7 +304,7 @@ const CheckoutPage = () => {
         closable={false}
       >
         <div className="success-dialog-content">
-          <i className="pi pi-check-circle text-green-500 text-8xl mb-4"></i>
+          <i className="pi pi-check-circle text-green-500 text-8xl mb-4" />
           <p className="mt-3 text-lg">
             Você pode acompanhar o status<br />
             na página de "Meus Pedidos".
@@ -265,7 +313,7 @@ const CheckoutPage = () => {
             <div className="text-left mt-4">
               <p><strong>Pedido Nº: #</strong>{createdOrder.id}</p>
               <p><strong>Data:</strong> {new Date(createdOrder.orderDate!).toLocaleDateString('pt-BR')}</p>
-              <p><strong>Valor Total:</strong> {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(createdOrder.total || 0)}</p>
+              <p><strong>Valor Total:</strong> {formatCurrency(createdOrder.total || 0)}</p>
               <p><strong>Status:</strong> {translateOrderStatus(createdOrder.status)}</p>
             </div>
           )}
@@ -277,14 +325,13 @@ const CheckoutPage = () => {
 
 const translateOrderStatus = (status: string | undefined): string => {
   switch (status?.toUpperCase()) {
-    case 'PENDING':
-      return 'Pendente';
-    case 'DELIVERED':
-      return 'Entregue';
-    case 'CANCELLED':
-      return 'Cancelado';
-    default:
-      return status || 'Desconhecido';
+    case 'AGUARDANDO_PAGAMENTO': return 'Aguardando Pagamento';
+    case 'PAGO':                 return 'Pago';
+    case 'EM_PREPARACAO':        return 'Em Preparação';
+    case 'EM_TRANSPORTE':        return 'Em Transporte';
+    case 'CONCLUIDO':            return 'Concluído';
+    case 'CANCELADO':            return 'Cancelado';
+    default:                     return status || 'Desconhecido';
   }
 };
 
