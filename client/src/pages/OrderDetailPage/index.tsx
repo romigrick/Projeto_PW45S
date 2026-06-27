@@ -28,6 +28,29 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELADO: '#ef4444',
 };
 
+const PAYMENT_LABELS: Record<string, string> = {
+  CARTAO_CREDITO: 'Cartão de Crédito',
+  PIX: 'Pix',
+  BOLETO: 'Boleto Bancário',
+  // fallbacks para valores antigos
+  'credit-card': 'Cartão de Crédito',
+  'CREDIT_CARD': 'Cartão de Crédito',
+  'BOLETO_BANCARIO': 'Boleto Bancário',
+  pix: 'Pix',
+  boleto: 'Boleto Bancário',
+};
+
+const PAYMENT_ICONS: Record<string, string> = {
+  CARTAO_CREDITO: 'pi-credit-card',
+  PIX: 'pi-qrcode',
+  BOLETO: 'pi-barcode',
+  'credit-card': 'pi-credit-card',
+  'CREDIT_CARD': 'pi-credit-card',
+  'BOLETO_BANCARIO': 'pi-barcode',
+  pix: 'pi-qrcode',
+  boleto: 'pi-barcode',
+};
+
 const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -72,7 +95,10 @@ const OrderDetailPage = () => {
 
   const formatDateTime = (dateString: string | undefined) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
   };
 
   const formatCurrency = (value: number | undefined) => {
@@ -80,14 +106,18 @@ const OrderDetailPage = () => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
 
-  const getStatusLabel = (status: string | undefined) => {
-    if (!status) return 'Desconhecido';
-    return STATUS_LABELS[status] || status;
+  const formatSize = (bytes?: number) => {
+    if (!bytes) return '';
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
+
+  const getStatusLabel = (status: string | undefined) =>
+    STATUS_LABELS[status || ''] || status || 'Desconhecido';
 
   const handleBuyAgain = () => {
     if (order?.items) {
-      order.items.forEach(item => { addToCart(item.product, item.quantity); });
+      order.items.forEach((item) => addToCart(item.product, item.quantity));
       navigate('/cart');
     }
   };
@@ -95,12 +125,6 @@ const OrderDetailPage = () => {
   const handleDownload = (attachment: IAttachment) => {
     if (!attachment.id || !id) return;
     OrderService.downloadAttachment(Number(id), attachment.id, attachment.originalFileName);
-  };
-
-  const formatSize = (bytes?: number) => {
-    if (!bytes) return '';
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const timelineEvents = [...history].reverse().map((h) => ({
@@ -116,7 +140,7 @@ const OrderDetailPage = () => {
         <Header />
         <div className="loading-error-container">
           <div className="text-center">
-            <i className="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+            <i className="pi pi-spin pi-spinner text-4xl text-primary mb-3" />
             <p>Carregando detalhes do pedido...</p>
           </div>
         </div>
@@ -131,7 +155,7 @@ const OrderDetailPage = () => {
         <Header />
         <div className="loading-error-container">
           <div className="text-center">
-            <i className="pi pi-exclamation-triangle text-4xl text-red-500 mb-3"></i>
+            <i className="pi pi-exclamation-triangle text-4xl text-red-500 mb-3" />
             <p className="text-red-500">{error || 'Pedido não encontrado.'}</p>
             <Button label="Voltar para Meus Pedidos" icon="pi pi-arrow-left" onClick={() => navigate('/orders')} className="mt-3 p-button-secondary" />
           </div>
@@ -146,12 +170,21 @@ const OrderDetailPage = () => {
   const shippingCost = calculateShipping(subtotal);
   const total = subtotal + shippingCost;
 
+  const paymentMethod = (order as any).paymentMethod as string | undefined;
+  const paymentLabel = paymentMethod ? (PAYMENT_LABELS[paymentMethod] || paymentMethod) : null;
+  const paymentIcon = paymentMethod ? (PAYMENT_ICONS[paymentMethod] || 'pi-wallet') : 'pi-wallet';
+
   return (
     <div className="order-detail-page">
       <Header />
       <main className="order-detail-container">
         <div className="order-summary-header">
-          <Button icon="pi pi-arrow-left" label="Meus Pedidos" className="p-button-text p-button-secondary back-button" onClick={() => navigate('/orders')} />
+          <Button
+            icon="pi pi-arrow-left"
+            label="Meus Pedidos"
+            className="p-button-text p-button-secondary back-button"
+            onClick={() => navigate('/orders')}
+          />
           <h1 className="order-title">Detalhes do Pedido</h1>
           <div className="order-meta">
             <span>Pedido #{order.id}</span>
@@ -163,16 +196,30 @@ const OrderDetailPage = () => {
         </div>
 
         <div className="order-content-grid">
+          {/* Coluna esquerda — itens */}
           <div className="order-items-section">
             <div className="section-header">
               <h2 className="section-title">Itens do Pedido ({totalItems})</h2>
-              <Button label="Comprar novamente" icon="pi pi-replay" className="buy-again-button" onClick={handleBuyAgain} />
+              <Button
+                label="Comprar novamente"
+                icon="pi pi-replay"
+                className="buy-again-button"
+                onClick={handleBuyAgain}
+              />
             </div>
 
             {order.items?.map((item: IOrderItem) => (
-              <Link to={`/product/${(item.product as any).id}`} key={(item as any).id} className="order-item-card-link">
+              <Link
+                to={`/product/${(item.product as any).id}`}
+                key={(item as any).id}
+                className="order-item-card-link"
+              >
                 <div className="order-item-card">
-                  <img src={(item.product as any)?.urlImagem || 'https://placehold.co/100x100/eee/333?text=Img'} alt={(item.product as any)?.name || 'Imagem do produto'} className="item-image" />
+                  <img
+                    src={(item.product as any)?.urlImagem || 'https://placehold.co/100x100/eee/333?text=Img'}
+                    alt={(item.product as any)?.name || 'Imagem do produto'}
+                    className="item-image"
+                  />
                   <div className="item-details">
                     <p className="item-name">{(item.product as any)?.name || 'Produto indisponível'}</p>
                     <p className="item-price">{formatCurrency(item.price)}</p>
@@ -185,24 +232,37 @@ const OrderDetailPage = () => {
               </Link>
             ))}
 
+            {/* Anexos do pedido — visíveis para o cliente */}
             {attachments.length > 0 && (
               <div className="details-card" style={{ marginTop: '1.5rem' }}>
                 <h3 className="card-title">Documentos do Pedido</h3>
                 <div className="card-content">
                   {attachments.map((att) => (
-                    <div key={att.id} className="flex align-items-center justify-content-between py-2" style={{ borderBottom: '1px solid #e5e7eb' }}>
+                    <div
+                      key={att.id}
+                      className="flex align-items-center justify-content-between py-2"
+                      style={{ borderBottom: '1px solid #e5e7eb' }}
+                    >
                       <div className="flex align-items-center gap-2">
-                        <i className={`pi ${att.contentType?.includes('pdf') ? 'pi-file-pdf text-red-500' : 'pi-image text-blue-500'}`} style={{ fontSize: '1.2rem' }} />
+                        <i
+                          className={`pi ${att.contentType?.includes('pdf') ? 'pi-file-pdf text-red-500' : 'pi-image text-blue-500'}`}
+                          style={{ fontSize: '1.2rem' }}
+                        />
                         <div>
                           <p className="m-0 text-sm font-medium text-900">{att.originalFileName}</p>
-                          {att.description && <p className="m-0 text-xs text-500">{att.description}</p>}
-                          <p className="m-0 text-xs text-400">{formatSize(att.fileSize)} · {new Date(att.uploadedAt).toLocaleDateString('pt-BR')}</p>
+                          {att.description && (
+                            <p className="m-0 text-xs text-500">{att.description}</p>
+                          )}
+                          <p className="m-0 text-xs text-400">
+                            {formatSize(att.fileSize)} · {new Date(att.uploadedAt).toLocaleDateString('pt-BR')}
+                          </p>
                         </div>
                       </div>
                       <Button
                         icon="pi pi-download"
                         className="p-button-rounded p-button-text p-button-sm"
                         tooltip="Baixar"
+                        tooltipOptions={{ position: 'top' }}
                         onClick={() => handleDownload(att)}
                       />
                     </div>
@@ -212,16 +272,43 @@ const OrderDetailPage = () => {
             )}
           </div>
 
+          {/* Coluna direita — detalhes */}
           <div className="order-details-section">
             <div className="details-card">
+              {/* Endereço */}
               <div>
                 <h3 className="card-title">Endereço de Entrega</h3>
                 <div className="card-content">
-                  <p>{(order as any).address?.street}, {(order as any).address?.number} - {(order as any).address?.neighborhood}, {(order as any).address?.city} - {(order as any).address?.state}</p>
+                  <p>
+                    {(order as any).address?.street}, {(order as any).address?.number}
+                    {(order as any).address?.neighborhood ? ` - ${(order as any).address.neighborhood}` : ''}
+                  </p>
+                  <p>
+                    {(order as any).address?.city} - {(order as any).address?.state}
+                  </p>
                   <p>CEP: {(order as any).address?.zipCode}</p>
                 </div>
               </div>
-              <div className="card-separator"></div>
+
+              <div className="card-separator" />
+
+              {/* Forma de pagamento */}
+              {paymentLabel && (
+                <>
+                  <div>
+                    <h3 className="card-title">Forma de Pagamento</h3>
+                    <div className="card-content">
+                      <div className="flex align-items-center gap-2">
+                        <i className={`pi ${paymentIcon} text-primary`} style={{ fontSize: '1.1rem' }} />
+                        <span className="font-medium text-900">{paymentLabel}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card-separator" />
+                </>
+              )}
+
+              {/* Resumo financeiro */}
               <div>
                 <h3 className="card-title">Resumo Financeiro</h3>
                 <div className="card-content">
@@ -241,13 +328,14 @@ const OrderDetailPage = () => {
               </div>
             </div>
 
+            {/* Histórico */}
             {timelineEvents.length > 0 && (
               <div className="details-card">
                 <h3 className="card-title">Histórico do Pedido</h3>
                 <Timeline
                   value={timelineEvents}
                   align="left"
-                  className="w-full"
+                  className="w-full order-timeline"
                   marker={(item) => (
                     <span
                       className="flex w-2rem h-2rem align-items-center justify-content-center border-circle flex-shrink-0"
@@ -258,9 +346,11 @@ const OrderDetailPage = () => {
                   )}
                   content={(item) => (
                     <div className="ml-2 mb-3">
-                      <p className="font-semibold text-900 m-0 text-sm">{item.label}</p>
-                      <small className="text-500 block">{item.date}</small>
-                      {item.obs && <small className="text-600 block mt-1 font-italic">"{item.obs}"</small>}
+                      <p className="timeline-label">{item.label}</p>
+                      <small className="timeline-date">{item.date}</small>
+                      {item.obs && (
+                        <small className="timeline-obs">"{item.obs}"</small>
+                      )}
                     </div>
                   )}
                 />

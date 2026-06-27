@@ -23,7 +23,6 @@ export const AdminProductFormPage = () => {
   const [loadingPage, setLoadingPage] = useState(isEdit);
   const [saving, setSaving] = useState(false);
 
-  // Estado da imagem
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,57 +33,34 @@ export const AdminProductFormPage = () => {
     reset,
     formState: { errors },
   } = useForm<IProduct>({
-    defaultValues: {
-      name: '',
-      description: '',
-      price: 0,
-      urlImagem: '',
-      category: undefined,
-    },
+    defaultValues: { name: '', description: '', price: 0, urlImagem: '', category: undefined },
   });
 
   useEffect(() => {
-    const loadCategories = async () => {
-      const res = await CategoryService.findAll();
-      if (res.success && Array.isArray(res.data)) {
-        setCategories(res.data as ICategory[]);
-      }
-    };
-    loadCategories();
+    CategoryService.findAll().then((res) => {
+      if (res.success && Array.isArray(res.data)) setCategories(res.data as ICategory[]);
+    });
   }, []);
 
   useEffect(() => {
     if (!isEdit) return;
-    const loadProduct = async () => {
-      setLoadingPage(true);
-      const res = await ProductService.findById(parseInt(id!));
+    setLoadingPage(true);
+    ProductService.findById(parseInt(id!)).then((res) => {
       if (res.success) {
         const product = res.data as IProduct;
         reset(product);
-        // Se já tem imagem salva no backend, mostra preview via urlImagem
-        if (product.urlImagem) {
-          setImagePreview(product.urlImagem);
-        }
+        if (product.urlImagem) setImagePreview(product.urlImagem);
       } else {
-        toast.current?.show({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Falha ao carregar produto.',
-          life: 3000,
-        });
+        toast.current?.show({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar produto.', life: 3000 });
       }
       setLoadingPage(false);
-    };
-    loadProduct();
+    });
   }, [id]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setImageFile(file);
-
-    // Preview local antes do upload
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
@@ -98,32 +74,16 @@ export const AdminProductFormPage = () => {
 
   const onSubmit = async (data: IProduct) => {
     if (!imageFile && !isEdit) {
-      toast.current?.show({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail: 'Selecione uma imagem para o produto.',
-        life: 3000,
-      });
+      toast.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Selecione uma imagem para o produto.', life: 3000 });
       return;
     }
-
     setSaving(true);
     const res = await ProductService.save(data, imageFile);
     if (res.success || res.status === 200 || res.status === 201) {
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Sucesso',
-        detail: isEdit ? 'Produto atualizado com sucesso!' : 'Produto criado com sucesso!',
-        life: 3000,
-      });
+      toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: isEdit ? 'Produto atualizado!' : 'Produto criado!', life: 3000 });
       setTimeout(() => navigate('/admin/products'), 1200);
     } else {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Erro',
-        detail: res.message || 'Falha ao salvar produto.',
-        life: 3000,
-      });
+      toast.current?.show({ severity: 'error', summary: 'Erro', detail: res.message || 'Falha ao salvar produto.', life: 3000 });
     }
     setSaving(false);
   };
@@ -140,39 +100,65 @@ export const AdminProductFormPage = () => {
     <>
       <Toast ref={toast} />
 
+      <style>{`
+        .product-form-grid {
+          display: grid;
+          grid-template-columns: 1fr 320px;
+          gap: 1.5rem;
+          align-items: start;
+        }
+        @media (max-width: 960px) {
+          .product-form-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .product-form-card {
+          background: var(--surface-card);
+          border-radius: 6px;
+          padding: 1.25rem;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .product-form-card + .product-form-card {
+          margin-top: 1.5rem;
+        }
+        .image-drop-area {
+          border: 2px dashed #cbd5e1;
+          border-radius: 8px;
+          padding: 2.5rem 1rem;
+          text-align: center;
+          cursor: pointer;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .image-drop-area:hover {
+          border-color: #003399;
+          background: #f0f4ff;
+        }
+      `}</style>
+
       {/* Cabeçalho */}
-      <div className="flex align-items-center justify-content-between mb-4">
-        <div className="flex align-items-center gap-3">
-          <Button
-            icon="pi pi-arrow-left"
-            className="p-button-text p-button-sm"
-            style={{ color: '#003399' }}
-            onClick={() => navigate('/admin/products')}
-            tooltip="Voltar"
-          />
-          <div>
-            <h2 className="m-0 text-900 font-bold text-xl">
-              {isEdit ? 'Editar Produto' : 'Novo Produto'}
-            </h2>
-            <p className="m-0 text-500 text-sm mt-1">
-              {isEdit
-                ? 'Atualize os dados do produto'
-                : 'Preencha os dados para cadastrar um produto'}
-            </p>
-          </div>
+      <div className="flex align-items-center gap-3 mb-4">
+        <Button
+          icon="pi pi-arrow-left"
+          className="p-button-text p-button-sm"
+          style={{ color: '#003399' }}
+          onClick={() => navigate('/admin/products')}
+          tooltip="Voltar"
+          type="button"
+        />
+        <div>
+          <h2 className="m-0 text-900 font-bold text-xl">{isEdit ? 'Editar Produto' : 'Novo Produto'}</h2>
+          <p className="m-0 text-500 text-sm mt-1">
+            {isEdit ? 'Atualize os dados do produto' : 'Preencha os dados para cadastrar um produto'}
+          </p>
         </div>
       </div>
 
-      <div className="grid">
+      <div className="product-form-grid">
         {/* Coluna principal */}
-        <div className="col-12 lg:col-8">
-
+        <div>
           {/* Informações gerais */}
-          <div className="surface-card shadow-2 border-round p-4 mb-4">
-            <h4
-              className="mt-0 mb-3 text-700 font-semibold text-sm uppercase"
-              style={{ letterSpacing: '0.05em' }}
-            >
+          <div className="product-form-card">
+            <h4 className="mt-0 mb-3 text-700 font-semibold text-sm uppercase" style={{ letterSpacing: '0.05em' }}>
               Informações Gerais
             </h4>
             <Divider className="mt-0 mb-4" />
@@ -186,16 +172,10 @@ export const AdminProductFormPage = () => {
                 control={control}
                 rules={{ required: 'Nome é obrigatório' }}
                 render={({ field }) => (
-                  <InputText
-                    {...field}
-                    placeholder="Ex: Mouse Gamer RGB"
-                    className={`w-full ${errors.name ? 'p-invalid' : ''}`}
-                  />
+                  <InputText {...field} placeholder="Ex: Mouse Gamer RGB" className={`w-full ${errors.name ? 'p-invalid' : ''}`} />
                 )}
               />
-              {errors.name && (
-                <small className="p-error mt-1 block">{errors.name.message}</small>
-              )}
+              {errors.name && <small className="p-error mt-1 block">{errors.name.message}</small>}
             </div>
 
             <div className="field mb-0">
@@ -216,23 +196,17 @@ export const AdminProductFormPage = () => {
                   />
                 )}
               />
-              {errors.description && (
-                <small className="p-error mt-1 block">{errors.description.message}</small>
-              )}
+              {errors.description && <small className="p-error mt-1 block">{errors.description.message}</small>}
             </div>
           </div>
 
-          {/* Upload de imagem */}
-          <div className="surface-card shadow-2 border-round p-4 mb-4">
-            <h4
-              className="mt-0 mb-3 text-700 font-semibold text-sm uppercase"
-              style={{ letterSpacing: '0.05em' }}
-            >
+          {/* Imagem */}
+          <div className="product-form-card">
+            <h4 className="mt-0 mb-3 text-700 font-semibold text-sm uppercase" style={{ letterSpacing: '0.05em' }}>
               Imagem do Produto
             </h4>
             <Divider className="mt-0 mb-4" />
 
-            {/* Preview */}
             {imagePreview ? (
               <div className="flex flex-column align-items-center gap-3">
                 <img
@@ -249,7 +223,7 @@ export const AdminProductFormPage = () => {
                     background: '#f8fafc',
                   }}
                 />
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap justify-content-center">
                   <Button
                     icon="pi pi-refresh"
                     label="Trocar imagem"
@@ -268,53 +242,21 @@ export const AdminProductFormPage = () => {
                 </div>
               </div>
             ) : (
-              /* Área de drop / seleção */
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  border: '2px dashed #cbd5e1',
-                  borderRadius: '8px',
-                  padding: '2.5rem 1rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'border-color 0.2s, background 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = '#003399';
-                  (e.currentTarget as HTMLDivElement).style.background = '#f0f4ff';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = '#cbd5e1';
-                  (e.currentTarget as HTMLDivElement).style.background = 'transparent';
-                }}
-              >
-                <i
-                  className="pi pi-image"
-                  style={{ fontSize: '2rem', color: '#94a3b8', display: 'block', marginBottom: '0.75rem' }}
-                />
+              <div className="image-drop-area" onClick={() => fileInputRef.current?.click()}>
+                <i className="pi pi-image" style={{ fontSize: '2rem', color: '#94a3b8', display: 'block', marginBottom: '0.75rem' }} />
                 <p className="m-0 text-700 font-medium text-sm">Clique para selecionar uma imagem</p>
                 <p className="m-0 text-500 text-xs mt-1">PNG, JPG ou JPEG — máx. 10 MB</p>
               </div>
             )}
-
-            {/* Input oculto */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".png,.jpg,.jpeg"
-              style={{ display: 'none' }}
-              onChange={handleImageSelect}
-            />
+            <input ref={fileInputRef} type="file" accept=".png,.jpg,.jpeg" style={{ display: 'none' }} onChange={handleImageSelect} />
           </div>
         </div>
 
         {/* Coluna lateral */}
-        <div className="col-12 lg:col-4">
-          <div className="surface-card shadow-2 border-round p-4 mb-4">
-            <h4
-              className="mt-0 mb-3 text-700 font-semibold text-sm uppercase"
-              style={{ letterSpacing: '0.05em' }}
-            >
+        <div>
+          {/* Preço e Categoria */}
+          <div className="product-form-card">
+            <h4 className="mt-0 mb-3 text-700 font-semibold text-sm uppercase" style={{ letterSpacing: '0.05em' }}>
               Preço e Categoria
             </h4>
             <Divider className="mt-0 mb-4" />
@@ -326,10 +268,7 @@ export const AdminProductFormPage = () => {
               <Controller
                 name="price"
                 control={control}
-                rules={{
-                  required: 'Preço é obrigatório',
-                  min: { value: 0.01, message: 'Preço deve ser maior que zero' },
-                }}
+                rules={{ required: 'Preço é obrigatório', min: { value: 0.01, message: 'Deve ser maior que zero' } }}
                 render={({ field }) => (
                   <InputNumber
                     value={field.value}
@@ -343,9 +282,7 @@ export const AdminProductFormPage = () => {
                   />
                 )}
               />
-              {errors.price && (
-                <small className="p-error mt-1 block">{errors.price.message}</small>
-              )}
+              {errors.price && <small className="p-error mt-1 block">{errors.price.message}</small>}
             </div>
 
             <div className="field mb-0">
@@ -367,14 +304,12 @@ export const AdminProductFormPage = () => {
                   />
                 )}
               />
-              {errors.category && (
-                <small className="p-error mt-1 block">{errors.category.message}</small>
-              )}
+              {errors.category && <small className="p-error mt-1 block">{errors.category.message}</small>}
             </div>
           </div>
 
           {/* Ações */}
-          <div className="surface-card shadow-2 border-round p-4">
+          <div className="product-form-card">
             <Button
               label={isEdit ? 'Atualizar Produto' : 'Salvar Produto'}
               icon="pi pi-check"

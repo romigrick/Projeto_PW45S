@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import AddressService from '../../services/addressService';
-import type { IAddress, IOrder } from '../../commons/types';
 import OrderService from '../../services/orderService';
+import type { IAddress, IOrder } from '../../commons/types';
 import { calculateShipping } from '../../lib/shipping';
 import { useNotification } from '../../context/NotificationContext';
 import Header from '../../components/Header';
@@ -15,13 +15,13 @@ import './styles.css';
 
 const CheckoutPage = () => {
   const { items, getTotalPrice, clearCart } = useCart();
-  const { addNotification } = useNotification();
+  const { showNotification } = useNotification();
   const navigate = useNavigate();
 
   const [addresses, setAddresses] = useState<IAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<IAddress | null>(null);
-  const [shippingOption, setShippingOption] = useState<'standard' | 'express'>('standard');
-  const [paymentMethod, setPaymentMethod] = useState<string>('CREDIT_CARD');
+  const [shippingOption, setShippingOption] = useState<'NORMAL' | 'EXPRESSO'>('NORMAL');
+  const [paymentMethod, setPaymentMethod] = useState<string>('CARTAO_CREDITO');
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [isOrderSuccessNavigating, setIsOrderSuccessNavigating] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<IOrder | null>(null);
@@ -61,10 +61,10 @@ const CheckoutPage = () => {
 
   let shippingCost: number;
   if (subtotal > 1000) {
-    shippingCost = shippingOption === 'standard' ? 0 : 45.0;
+    shippingCost = shippingOption === 'NORMAL' ? 0 : 45.0;
   } else {
     const baseStandard = calculateShipping(subtotal);
-    shippingCost = shippingOption === 'standard' ? baseStandard : baseStandard + 30.0;
+    shippingCost = shippingOption === 'NORMAL' ? baseStandard : baseStandard + 30.0;
   }
 
   const total = subtotal + shippingCost;
@@ -76,13 +76,13 @@ const CheckoutPage = () => {
 
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
-      addNotification('Selecione um endereço para continuar.', 'error');
+      showNotification('error', 'Atenção', 'Selecione um endereço para continuar.');
       return;
     }
 
     const orderData = {
       address: { id: selectedAddress.id },
-      shippingOption,
+      shippingType: shippingOption,
       paymentMethod, // já vem em uppercase: CREDIT_CARD, PIX, BOLETO_BANCARIO
       items: items.map((item) => ({
         product: { id: item.product.id },
@@ -98,11 +98,11 @@ const CheckoutPage = () => {
         setCreatedOrder(response.data as IOrder);
         setShowSuccessDialog(true);
       } else {
-        addNotification(response.message || 'Erro ao finalizar pedido.', 'error');
+        showNotification('error', 'Erro', response.message || 'Erro ao finalizar pedido.');
       }
     } catch (error) {
       console.error('Failed to place order', error);
-      addNotification('Erro ao finalizar pedido. Tente novamente mais tarde.', 'error');
+      showNotification('error', 'Erro', 'Erro ao finalizar pedido. Tente novamente mais tarde.');
     }
   };
 
@@ -174,33 +174,33 @@ const CheckoutPage = () => {
               <h2 className="step-title">2. Método de Envio</h2>
               <div className="shipping-options">
                 <div
-                  className={`shipping-option ${shippingOption === 'standard' ? 'selected' : ''}`}
-                  onClick={() => setShippingOption('standard')}
+                  className={`shipping-option ${shippingOption === 'NORMAL' ? 'selected' : ''}`}
+                  onClick={() => setShippingOption('NORMAL')}
                 >
                   <RadioButton
-                    inputId="standard"
+                    inputId="NORMAL"
                     name="shipping"
-                    value="standard"
+                    value="NORMAL"
                     onChange={(e) => setShippingOption(e.value)}
-                    checked={shippingOption === 'standard'}
+                    checked={shippingOption === 'NORMAL'}
                   />
-                  <label htmlFor="standard">
+                  <label htmlFor="NORMAL">
                     <strong>Envio Normal ({formatCurrency(displayStandardCost)})</strong>
                     <p>Receba em até 7 dias úteis</p>
                   </label>
                 </div>
                 <div
-                  className={`shipping-option ${shippingOption === 'express' ? 'selected' : ''}`}
-                  onClick={() => setShippingOption('express')}
+                  className={`shipping-option ${shippingOption === 'EXPRESSO' ? 'selected' : ''}`}
+                  onClick={() => setShippingOption('EXPRESSO')}
                 >
                   <RadioButton
-                    inputId="express"
+                    inputId="EXPRESSO"
                     name="shipping"
-                    value="express"
+                    value="EXPRESSO"
                     onChange={(e) => setShippingOption(e.value)}
-                    checked={shippingOption === 'express'}
+                    checked={shippingOption === 'EXPRESSO'}
                   />
-                  <label htmlFor="express">
+                  <label htmlFor="EXPRESSO">
                     <strong>Envio Expresso ({formatCurrency(displayExpressCost)})</strong>
                     <p>Receba em até 2 dias úteis</p>
                   </label>

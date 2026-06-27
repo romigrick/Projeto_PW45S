@@ -1,9 +1,0 @@
-2026-06-09 23:28:50 INFO  - Usuário desativado | username: operador
-2026-06-09 23:34:33 INFO  - Usuário ativado | username: operador | permissão: ROLE_CLIENTE
-2026-06-09 23:34:42 INFO  - Usuário desativado | username: operador
-2026-06-09 23:34:44 INFO  - Usuário desativado | username: ana.silva
-2026-06-09 23:34:47 INFO  - Usuário ativado | username: carlos.souza | permissão: ROLE_OPERATOR
-2026-06-09 23:34:51 INFO  - Usuário ativado | username: carlos.souza | permissão: ROLE_CLIENTE
-2026-06-09 23:34:53 INFO  - Usuário ativado | username: ana.silva | permissão: ROLE_CLIENTE
-2026-06-09 23:34:54 INFO  - Usuário ativado | username: operador | permissão: ROLE_CLIENTE
-2026-06-09 23:42:54 INFO  - Usuário desativado | username: ana.silva

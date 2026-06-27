@@ -26,10 +26,10 @@ const STATUS_OPTIONS = [
   { label: 'Cancelado', value: 'CANCELADO' },
 ];
 
-const STATUS_SEVERITY: Record<string, 'warning' | 'success' | 'info' | 'danger' | undefined> = {
+const STATUS_SEVERITY: Record<string, 'warning' | 'success' | 'info' | 'danger' | 'help' | undefined> = {
   AGUARDANDO_PAGAMENTO: 'warning',
   PAGO: 'success',
-  EM_PREPARACAO: 'info',
+  EM_PREPARACAO: 'help',
   EM_TRANSPORTE: 'info',
   CONCLUIDO: 'success',
   CANCELADO: 'danger',
@@ -258,11 +258,15 @@ export const AdminOrderDetailPage = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }} className="mb-3">
               <div>
                 <p className="text-500 text-sm mb-1">Pagamento</p>
-                <p className="font-medium text-900 m-0">{order.paymentMethod || '-'}</p>
+                <p className="font-medium text-900 m-0">
+                  {{ CARTAO_CREDITO: 'Cartão de Crédito', PIX: 'Pix', BOLETO: 'Boleto Bancário' }[(order as any).paymentMethod] || (order as any).paymentMethod || '-'}
+                </p>
               </div>
               <div>
                 <p className="text-500 text-sm mb-1">Frete</p>
-                <p className="font-medium text-900 m-0">{order.shippingOption || '-'}</p>
+                <p className="font-medium text-900 m-0">
+                  {(order as any).shippingType === 'EXPRESSO' ? 'Expresso' : (order as any).shippingType === 'NORMAL' ? 'Normal' : (order as any).shippingType || '-'}
+                </p>
               </div>
               <div>
                 <p className="text-500 text-sm mb-1">Total</p>
