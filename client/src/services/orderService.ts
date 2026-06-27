@@ -47,13 +47,30 @@ const getAllOrders = async (): Promise<IResponse> => {
   return response;
 };
 
-// Backend: POST /orders/{id}/status?status=X&observation=Y
-const updateOrderStatus = async (id: number, status: string, observation?: string): Promise<IResponse> => {
+// Backend: POST /orders/{id}/status?status=X&observation=Y [+ file opcional via multipart]
+const updateOrderStatus = async (
+  id: number,
+  status: string,
+  observation?: string,
+  file?: File | null
+): Promise<IResponse> => {
   let response = {} as IResponse;
   try {
     const params = new URLSearchParams({ status });
     if (observation) params.append('observation', observation);
-    const data = await api.post(`${orderURL}/${id}/status?${params.toString()}`);
+
+    let data;
+    if (file) {
+      // Envia como multipart para o backend anexar o arquivo ao email
+      const formData = new FormData();
+      formData.append('file', file);
+      data = await api.post(`${orderURL}/${id}/status?${params.toString()}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    } else {
+      data = await api.post(`${orderURL}/${id}/status?${params.toString()}`);
+    }
+
     response = { status: 200, success: true, message: 'Status atualizado com sucesso!', data: data.data };
   } catch (err: any) {
     response = { status: err.response?.status || 500, success: false, message: 'Falha ao atualizar status', data: err.response?.data || err.message };

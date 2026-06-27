@@ -112,15 +112,20 @@ export const AdminOrderDetailPage = () => {
       rejectLabel: 'Cancelar',
       accept: async () => {
         setUpdatingStatus(true);
-        if (selectedStatus === 'EM_TRANSPORTE' && transportFile) {
-          await OrderService.uploadAttachment(Number(id), transportFile, 'Nota Fiscal');
-          setTransportFile(null);
-          transportFileRef.current?.clear();
-        }
-        const response = await OrderService.updateOrderStatus(Number(id), selectedStatus, observation || undefined);
+
+        // Passa o arquivo direto para updateOrderStatus — backend faz tudo em um único email
+        const response = await OrderService.updateOrderStatus(
+          Number(id),
+          selectedStatus,
+          observation || undefined,
+          selectedStatus === 'EM_TRANSPORTE' ? transportFile : null
+        );
+
         if (response.success) {
           toast.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Status atualizado! E-mail enviado ao cliente.', life: 4000 });
           setObservation('');
+          setTransportFile(null);
+          transportFileRef.current?.clear();
           fetchOrderData(Number(id));
         } else {
           toast.current?.show({ severity: 'error', summary: 'Erro', detail: response.message || 'Falha ao atualizar status', life: 3000 });
