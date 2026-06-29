@@ -227,19 +227,6 @@ public class OrderController extends CrudController<Order, OrderDTO, Long> {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/test-email")
-    public ResponseEntity<String> testEmail() {
-        emailService.sendOrderStatusUpdate(
-                "giseli3690@gmail.com",
-                "Giseli",
-                1L,
-                "AGUARDANDO_PAGAMENTO",
-                "PAGO",
-                "Seu pagamento foi confirmado pelo gateway!"
-        );
-        return ResponseEntity.ok("E-mail enviado!");
-    }
-
     @PostMapping("/{id}/attachments")
     @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
     public ResponseEntity<List<OrderAttachmentDTO>> uploadMultipleAttachments(
