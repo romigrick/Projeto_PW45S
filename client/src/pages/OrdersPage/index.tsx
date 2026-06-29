@@ -242,7 +242,7 @@ const OrdersPage = () => {
                       {order.items!.length > 1 && ` e mais ${order.items!.length - 1} item(s)`}
                     </p>
                     <div className="order-meta">
-                      <span>Valor total: R$ {(order.total || 0).toFixed(2).replace('.', ',')}</span>
+                      <span>Valor total: R$ {((order.total || 0) + ((order as any).shippingCost || 0)).toFixed(2).replace('.', ',')}</span>
                       <span className="separator">|</span> 
                       <span>{formatDate(order.orderDate!)}</span>
                       <span className="separator">|</span>

@@ -67,6 +67,7 @@ export interface IOrder {
   user?: { id?: number; displayName?: string; username?: string; email?: string };
   address?: { id: number };
   shippingType: 'NORMAL' | 'EXPRESSO';
+  shippingCost?: number;
   paymentMethod: string;
   items: IOrderPayloadItem[];
   total?: number;

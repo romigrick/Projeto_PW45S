@@ -255,7 +255,7 @@ export const AdminOrderDetailPage = () => {
 
           <div className="surface-card shadow-2 border-round p-4 mb-4">
             <h3 className="mt-0 mb-3 text-800 font-semibold">Informações do Pedido</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }} className="mb-3">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }} className="mb-3">
               <div>
                 <p className="text-500 text-sm mb-1">Pagamento</p>
                 <p className="font-medium text-900 m-0">
@@ -266,12 +266,22 @@ export const AdminOrderDetailPage = () => {
                 <p className="text-500 text-sm mb-1">Frete</p>
                 <p className="font-medium text-900 m-0">
                   {(order as any).shippingType === 'EXPRESSO' ? 'Expresso' : (order as any).shippingType === 'NORMAL' ? 'Normal' : (order as any).shippingType || '-'}
+                  {' '}
+                  ({`R$ ${Number((order as any).shippingCost || 0).toFixed(2).replace('.', ',')}`})
+                </p>
+              </div>
+              <div>
+                <p className="text-500 text-sm mb-1">Subtotal</p>
+                <p className="font-medium text-900 m-0">
+                  {order.total != null ? `R$ ${Number(order.total).toFixed(2).replace('.', ',')}` : '-'}
                 </p>
               </div>
               <div>
                 <p className="text-500 text-sm mb-1">Total</p>
-                <p className="font-medium text-900 m-0">
-                  {order.total ? `R$ ${order.total.toFixed(2).replace('.', ',')}` : '-'}
+                <p className="font-bold text-900 m-0">
+                  {order.total != null
+                    ? `R$ ${(Number(order.total) + Number((order as any).shippingCost || 0)).toFixed(2).replace('.', ',')}`
+                    : '-'}
                 </p>
               </div>
             </div>

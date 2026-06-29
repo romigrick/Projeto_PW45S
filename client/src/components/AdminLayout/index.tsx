@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import logoImage from '@/assets/katchau_logo.png';
 
 const NAV_ITEMS = [
   { to: '/admin/dashboard', icon: 'pi-home', label: 'Dashboard' },
   { to: '/admin/orders', icon: 'pi-shopping-cart', label: 'Pedidos' },
   { to: '/admin/products', icon: 'pi-box', label: 'Produtos', adminOnly: true },
+  { to: '/admin/categories', icon: 'pi-tags', label: 'Categorias', adminOnly: true },
   { to: '/admin/users', icon: 'pi-users', label: 'Usuários' },
   { to: '/', icon: 'pi-storefront', label: 'Ver Loja' },
 ];
@@ -59,28 +61,10 @@ export const AdminLayout = () => {
         >
           {!collapsed && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <img src={logoImage} alt="Katchau Logo" className="logo-image" />
               <span style={{ color: 'white', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
                 Admin Panel
               </span>
-              {roleLabel && (
-                <span
-                  style={{
-                    display: 'inline-block',
-                    backgroundColor: isOperator ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.15)',
-                    color: isOperator ? '#fcd34d' : 'rgba(255,255,255,0.8)',
-                    fontSize: '0.65rem',
-                    fontWeight: 600,
-                    padding: '1px 6px',
-                    borderRadius: '4px',
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    whiteSpace: 'nowrap',
-                    width: 'fit-content',
-                  }}
-                >
-                  {roleLabel}
-                </span>
-              )}
             </div>
           )}
           {collapsed && roleLabel && (
@@ -122,7 +106,7 @@ export const AdminLayout = () => {
           </button>
         </div>
 
-        <nav style={{ flex: 1, padding: '0.5rem 0', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <nav style={{ flex: 1,paddingTop: '30%',padding: '0.5rem 0', display: 'flex',justifyContent: 'start',flexDirection: 'column', gap: '4dp' }}>
           {visibleItems.map(({ to, icon, label }) => (
             <NavLink
               key={to}
@@ -156,6 +140,25 @@ export const AdminLayout = () => {
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {authenticatedUser.displayName || authenticatedUser.username}
             </p>
+                          {roleLabel && (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: isOperator ? 'rgba(251,191,36,0.25)' : 'rgba(255,255,255,0.15)',
+                    color: isOperator ? '#fcd34d' : 'rgba(255,255,255,0.8)',
+                    fontSize: '0.65rem',
+                    fontWeight: 600,
+                    padding: '1px 6px',
+                    borderRadius: '4px',
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
+                    width: 'fit-content',
+                  }}
+                >
+                  {roleLabel}
+                </span>
+              )}
           </div>
         )}
 

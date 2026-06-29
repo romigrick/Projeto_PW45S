@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
+import { InputText } from "primereact/inputtext";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import type { IProduct } from "@/commons/types";
 import ProductService from "@/services/productService";
 import { useNavigate } from "react-router-dom";
 import { Toast } from "primereact/toast";
-import { Divider } from "primereact/divider";
 
 export const ProductListPage = () => {
   const [data, setData] = useState<IProduct[]>([]);
+  const [search, setSearch] = useState("");
   const { findAll, remove } = ProductService;
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
@@ -89,6 +90,16 @@ export const ProductListPage = () => {
     </div>
   );
 
+  const filteredData = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return data;
+    return data.filter((product) =>
+      [product.name, product.description, product.category?.name]
+        .filter(Boolean)
+        .some((field) => field!.toLowerCase().includes(term))
+    );
+  }, [data, search]);
+
   const priceTemplate = (rowData: IProduct) =>
     Number(rowData.price).toLocaleString("pt-BR", {
       style: "currency",
@@ -101,33 +112,47 @@ export const ProductListPage = () => {
       <ConfirmDialog />
 
       {/* Cabeçalho */}
-      <div className="flex align-items-center justify-content-between mb-4">
+      <div className="flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
           <h2 className="m-0 text-900 font-bold text-xl">Produtos</h2>
           <p className="m-0 text-500 text-sm mt-1">
-            {data.length} produto{data.length !== 1 ? 's' : ''} cadastrado{data.length !== 1 ? 's' : ''}
+            {filteredData.length} produto{filteredData.length !== 1 ? 's' : ''}
+            {search ? ` encontrado${filteredData.length !== 1 ? 's' : ''}` : ' cadastrado' + (filteredData.length !== 1 ? 's' : '')}
           </p>
         </div>
-        <Button
-          label="Novo Produto"
-          icon="pi pi-plus"
-          style={{ backgroundColor: '#003399', borderColor: '#003399' }}
-          onClick={() => navigate('/admin/products/new')}
-        />
+        <div className="flex align-items-center gap-3 flex-wrap">
+          <span className="p-input-icon-left">
+            <i className="pi pi-search" style={{ left: '0.75rem' }} />
+
+            <InputText
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar produto..."
+              style={{ paddingLeft: '2.5rem' }}
+            />
+          </span>
+          <Button
+            label="Novo Produto"
+            icon="pi pi-plus"
+            style={{ backgroundColor: '#003399', borderColor: '#003399' }}
+            onClick={() => navigate('/admin/products/new')}
+          />
+        </div>
       </div>
 
-      <div className="surface-card shadow-2 border-round p-3">
+      <div className="surface-card border-round p-3">
         <DataTable
-          value={data}
+          value={filteredData}
           stripedRows
-          emptyMessage="Nenhum produto cadastrado."
+          emptyMessage="Nenhum produto encontrado."
           className="p-datatable-sm"
+          removableSort
         >
-          <Column field="id" header="ID" style={{ width: '5%' }} />
-          <Column field="name" header="Nome" />
-          <Column field="description" header="Descrição" />
-          <Column header="Preço" body={priceTemplate} style={{ width: '15%' }} />
-          <Column field="category.name" header="Categoria" style={{ width: '15%' }} />
+          <Column field="id" header="ID" sortable style={{ width: '5%' }} />
+          <Column field="name" header="Nome" sortable />
+          <Column field="description" header="Descrição" sortable />
+          <Column header="Preço" body={priceTemplate} field="price" sortable style={{ width: '15%' }} />
+          <Column field="category.name" header="Categoria" sortable style={{ width: '15%' }} />
           <Column body={actionTemplate} header="Ações" style={{ width: '10%' }} />
         </DataTable>
       </div>

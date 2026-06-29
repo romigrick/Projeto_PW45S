@@ -98,7 +98,9 @@ export const AdminOrdersPage = () => {
   };
 
   const totalTemplate = (rowData: IOrder) =>
-    rowData.total ? `R$ ${rowData.total.toFixed(2).replace('.', ',')}` : '-';
+    rowData.total != null
+      ? `R$ ${(rowData.total + (rowData.shippingCost || 0)).toFixed(2).replace('.', ',')}`
+      : '-';
 
   const actionsTemplate = (rowData: IOrder) => (
     <Button
@@ -171,7 +173,7 @@ export const AdminOrdersPage = () => {
             selectionMode="range"
             placeholder="Filtrar por período"
             dateFormat="dd/mm/yy"
-            showClear
+            showclear="true"
             readOnlyInput
           />
           {(dateRange[0] || dateRange[1]) && (

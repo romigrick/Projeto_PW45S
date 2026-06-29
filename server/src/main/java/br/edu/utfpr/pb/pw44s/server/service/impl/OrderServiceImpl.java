@@ -60,21 +60,31 @@ public class OrderServiceImpl extends CrudServiceImpl<Order, Long> implements IO
             order.getItems().get(i).setOrderIndex(i);
         }
 
+        // Calcula o subtotal a partir dos itens reais do pedido, nunca a partir do
+        // total enviado pelo cliente (que pode estar incorreto).
+        BigDecimal subtotal = order.getItems().stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal freeThreshold = new BigDecimal("1000");
 
         if (order.getShippingType() == Order.ShippingType.EXPRESSO) {
             order.setShippingCost(
-                    order.getTotal().compareTo(freeThreshold) >= 0
+                    subtotal.compareTo(freeThreshold) >= 0
                             ? new BigDecimal("45.00")
                             : new BigDecimal("59.90")
             );
         } else {
             order.setShippingCost(
-                    order.getTotal().compareTo(freeThreshold) >= 0
+                    subtotal.compareTo(freeThreshold) >= 0
                             ? BigDecimal.ZERO
                             : new BigDecimal("29.90")
             );
         }
+
+        // O campo "total" representa apenas o subtotal dos produtos (sem frete),
+        // conforme o modelo de dados atual: total + shippingCost = valor final pago.
+        order.setTotal(subtotal);
 
         Order savedOrder = orderRepository.save(order);
         orderItemService.createItemsForOrder(savedOrder.getId(), order.getItems());

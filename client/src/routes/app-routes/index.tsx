@@ -13,10 +13,8 @@ import AddressPage from '../../pages/AddressPage/index';
 import OrdersPage from '../../pages/OrdersPage/index';
 import OrderDetailPage from '../../pages/OrderDetailPage/index';
 import CheckoutPage from '../../pages/CheckoutPage/index';
-import { CategoryListPage } from '../../pages/category-list';
-import { CategoryFormPage } from '../../pages/category-form';
-import { ProductListPage } from '../../pages/product-list';
-import { ProductFormPage } from '../../pages/product-form';
+
+import { ProductListPage } from '../../pages/AdminProductListPage';
 import { AdminRoute } from './admin-route';
 import { AdminLayout } from '../../components/AdminLayout';
 import { AdminDashboard } from '../../pages/AdminDashboard';
@@ -24,6 +22,8 @@ import { AdminOrdersPage } from '../../pages/AdminOrdersPage';
 import { AdminOrderDetailPage } from '../../pages/AdminOrderDetailPage';
 import { AdminUsersPage } from '../../pages/AdminUsersPage';
 import { AdminProductFormPage } from '../../pages/AdminProductFormPage';
+import { AdminCategoryListPage } from '../../pages/AdminCategoryListPage';
+import { AdminCategoryFormPage } from '../../pages/AdminCategoryFormPage';
 
 export const AppRoutes = () => {
   return (
@@ -40,9 +40,7 @@ export const AppRoutes = () => {
       <Route path="/cart" element={<CartPage />} />
 
       <Route element={<RequireAuth />}>
-        <Route path="/categories" element={<CategoryListPage />} />
-        <Route path="/categories/new" element={<CategoryFormPage />} />
-        <Route path="/categories/:id" element={<CategoryFormPage />} />
+
         <Route path="/account" element={<AccountPage />} />
         <Route path="/addresses" element={<AddressPage />} />
         <Route path="/orders" element={<OrdersPage />} />
@@ -60,6 +58,9 @@ export const AppRoutes = () => {
           <Route path="/admin/products" element={<ProductListPage />} />
           <Route path="/admin/products/new" element={<AdminProductFormPage />} />
           <Route path="/admin/products/:id" element={<AdminProductFormPage />} />
+          <Route path="/admin/categories" element={<AdminCategoryListPage />} />
+          <Route path="/admin/categories/new" element={<AdminCategoryFormPage />} />
+          <Route path="/admin/categories/:id" element={<AdminCategoryFormPage />} />
         </Route>
       </Route>
     </Routes>

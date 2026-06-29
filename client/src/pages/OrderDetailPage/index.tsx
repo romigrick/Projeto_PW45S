@@ -8,7 +8,6 @@ import { useCart } from '../../context/CartContext';
 import { Button } from 'primereact/button';
 import { Timeline } from 'primereact/timeline';
 import './styles.css';
-import { calculateShipping } from '../../lib/shipping';
 
 const STATUS_LABELS: Record<string, string> = {
   AGUARDANDO_PAGAMENTO: 'Aguardando Pagamento',
@@ -166,8 +165,12 @@ const OrderDetailPage = () => {
   }
 
   const totalItems = order.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
-  const subtotal = order.items?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0;
-  const shippingCost = calculateShipping(subtotal);
+  const subtotal = order.total ?? (order.items?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0);
+  // Usa o frete real retornado pelo backend (já persistido no pedido), em vez de
+  // recalcular no frontend — evita divergência com a regra de frete do servidor.
+  // order.total no banco representa apenas o subtotal dos produtos; o total final
+  // pago é subtotal + frete.
+  const shippingCost = order.shippingCost ?? 0;
   const total = subtotal + shippingCost;
 
   const paymentMethod = (order as any).paymentMethod as string | undefined;
