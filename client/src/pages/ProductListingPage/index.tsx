@@ -265,7 +265,7 @@ export default function ProductListingPage() {
           }
 
           if (freeShippingOnly) {
-            fetchedProducts = fetchedProducts.filter(product => product.price > 200);
+            fetchedProducts = fetchedProducts.filter(product => product.price > 1000);
           }
 
           if (minPrice !== null) {
