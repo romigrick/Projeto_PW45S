@@ -12,7 +12,7 @@ import CategoryService from '../../services/categoryService';
 import { useCart } from '../../context/CartContext';
 import type { IProduct, ICategory, ListingProductCardProps } from '../../commons/types';
 import ListingProductCard from '../../components/ListingProductCard';
-import bannerImage from '../../assets/1761763638esquenta-black-das-blacks.webp';
+import bannerImage from '../../assets/julhogamer.jpg';
 
 interface FilterSidebarProps {
   categories: ICategory[];
@@ -348,7 +348,7 @@ export default function ProductListingPage() {
 
   const bannerStyle = {
     width: '100%',
-    height: '12rem',
+    height: '20rem',
     borderRadius: '0.5rem',
     marginBottom: '1.5rem',
     overflow: 'hidden'

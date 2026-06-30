@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import banner1 from '../../assets/1738948323.jpg';
-import banner2 from '../../assets/1718990187.jpg';
+import banner1 from '../../assets/mouses2.jpg';
+import banner2 from '../../assets/gta6.jpg';
 
 const Hero = () => {
   return (
