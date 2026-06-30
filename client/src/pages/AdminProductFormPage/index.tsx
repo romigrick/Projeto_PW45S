@@ -12,12 +12,14 @@ import { Divider } from 'primereact/divider';
 import type { ICategory, IProduct } from '@/commons/types';
 import CategoryService from '@/services/categoryService';
 import ProductService from '@/services/productService';
+import { useAuth } from '@/context/AuthContext';
 
 export const AdminProductFormPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const isEdit = !!id;
+  const { isAdmin, loading: authLoading } = useAuth();
 
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loadingPage, setLoadingPage] = useState(isEdit);
@@ -35,6 +37,12 @@ export const AdminProductFormPage = () => {
   } = useForm<IProduct>({
     defaultValues: { name: '', description: '', price: 0, urlImagem: '', category: undefined },
   });
+
+  useEffect(() => {
+    if (!authLoading && !isAdmin) {
+      navigate('/admin/products', { replace: true });
+    }
+  }, [authLoading, isAdmin, navigate]);
 
   useEffect(() => {
     CategoryService.findAll().then((res) => {
@@ -87,6 +95,14 @@ export const AdminProductFormPage = () => {
     }
     setSaving(false);
   };
+
+  if (authLoading || !isAdmin) {
+    return (
+      <div className="flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <ProgressSpinner />
+      </div>
+    );
+  }
 
   if (loadingPage) {
     return (

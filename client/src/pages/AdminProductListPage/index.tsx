@@ -8,6 +8,7 @@ import type { IProduct } from "@/commons/types";
 import ProductService from "@/services/productService";
 import { useNavigate } from "react-router-dom";
 import { Toast } from "primereact/toast";
+import { useAuth } from "@/context/AuthContext";
 
 export const ProductListPage = () => {
   const [data, setData] = useState<IProduct[]>([]);
@@ -15,6 +16,7 @@ export const ProductListPage = () => {
   const { findAll, remove } = ProductService;
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     loadData();
@@ -70,25 +72,28 @@ export const ProductListPage = () => {
     });
   };
 
-  const actionTemplate = (rowData: IProduct) => (
-    <div className="flex gap-2">
-      <Button
-        icon="pi pi-pencil"
-        className="p-button-sm p-button-text"
-        style={{ color: '#003399' }}
-        onClick={() => handleEdit(rowData)}
-        tooltip="Editar"
-        tooltipOptions={{ position: 'top' }}
-      />
-      <Button
-        icon="pi pi-trash"
-        className="p-button-sm p-button-text p-button-danger"
-        onClick={() => handleDelete(rowData)}
-        tooltip="Excluir"
-        tooltipOptions={{ position: 'top' }}
-      />
-    </div>
-  );
+  const actionTemplate = (rowData: IProduct) => {
+    if (!isAdmin) return null;
+    return (
+      <div className="flex gap-2">
+        <Button
+          icon="pi pi-pencil"
+          className="p-button-sm p-button-text"
+          style={{ color: '#003399' }}
+          onClick={() => handleEdit(rowData)}
+          tooltip="Editar"
+          tooltipOptions={{ position: 'top' }}
+        />
+        <Button
+          icon="pi pi-trash"
+          className="p-button-sm p-button-text p-button-danger"
+          onClick={() => handleDelete(rowData)}
+          tooltip="Excluir"
+          tooltipOptions={{ position: 'top' }}
+        />
+      </div>
+    );
+  };
 
   const filteredData = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -131,12 +136,14 @@ export const ProductListPage = () => {
               style={{ paddingLeft: '2.5rem' }}
             />
           </span>
-          <Button
-            label="Novo Produto"
-            icon="pi pi-plus"
-            style={{ backgroundColor: '#003399', borderColor: '#003399' }}
-            onClick={() => navigate('/admin/products/new')}
-          />
+          {isAdmin && (
+            <Button
+              label="Novo Produto"
+              icon="pi pi-plus"
+              style={{ backgroundColor: '#003399', borderColor: '#003399' }}
+              onClick={() => navigate('/admin/products/new')}
+            />
+          )}
         </div>
       </div>
 
@@ -153,7 +160,9 @@ export const ProductListPage = () => {
           <Column field="description" header="Descrição" sortable />
           <Column header="Preço" body={priceTemplate} field="price" sortable style={{ width: '15%' }} />
           <Column field="category.name" header="Categoria" sortable style={{ width: '15%' }} />
-          <Column body={actionTemplate} header="Ações" style={{ width: '10%' }} />
+          {isAdmin && (
+            <Column body={actionTemplate} header="Ações" style={{ width: '10%' }} />
+          )}
         </DataTable>
       </div>
     </>

@@ -8,12 +8,14 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Divider } from 'primereact/divider';
 import type { ICategory } from '@/commons/types';
 import CategoryService from '@/services/categoryService';
+import { useAuth } from '@/context/AuthContext';
 
 export const AdminCategoryFormPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
   const isEdit = !!id;
+  const { isAdmin, loading: authLoading } = useAuth();
 
   const [loadingPage, setLoadingPage] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -26,6 +28,12 @@ export const AdminCategoryFormPage = () => {
   } = useForm<ICategory>({
     defaultValues: { name: '' },
   });
+
+  useEffect(() => {
+    if (!authLoading && !isAdmin) {
+      navigate('/admin/categories', { replace: true });
+    }
+  }, [authLoading, isAdmin, navigate]);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -52,6 +60,14 @@ export const AdminCategoryFormPage = () => {
     }
     setSaving(false);
   };
+
+  if (authLoading || !isAdmin) {
+    return (
+      <div className="flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <ProgressSpinner />
+      </div>
+    );
+  }
 
   if (loadingPage) {
     return (

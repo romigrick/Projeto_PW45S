@@ -6,8 +6,8 @@ import logoImage from '@/assets/katchau_logo.png';
 const NAV_ITEMS = [
   { to: '/admin/dashboard', icon: 'pi-home', label: 'Dashboard' },
   { to: '/admin/orders', icon: 'pi-shopping-cart', label: 'Pedidos' },
-  { to: '/admin/products', icon: 'pi-box', label: 'Produtos', adminOnly: true },
-  { to: '/admin/categories', icon: 'pi-tags', label: 'Categorias', adminOnly: true },
+  { to: '/admin/products', icon: 'pi-box', label: 'Produtos' },
+  { to: '/admin/categories', icon: 'pi-tags', label: 'Categorias'},
   { to: '/admin/users', icon: 'pi-users', label: 'Usuários' },
   { to: '/', icon: 'pi-storefront', label: 'Ver Loja' },
 ];

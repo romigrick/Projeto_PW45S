@@ -8,6 +8,7 @@ import type { ICategory } from "@/commons/types";
 import CategoryService from "@/services/categoryService";
 import { useNavigate } from "react-router-dom";
 import { Toast } from "primereact/toast";
+import { useAuth } from "@/context/AuthContext";
 
 export const AdminCategoryListPage = () => {
   const [data, setData] = useState<ICategory[]>([]);
@@ -15,6 +16,7 @@ export const AdminCategoryListPage = () => {
   const { findAll, remove } = CategoryService;
   const navigate = useNavigate();
   const toast = useRef<Toast>(null);
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     loadData();
@@ -76,25 +78,28 @@ export const AdminCategoryListPage = () => {
     return data.filter((category) => category.name?.toLowerCase().includes(term));
   }, [data, search]);
 
-  const actionTemplate = (rowData: ICategory) => (
-    <div className="flex gap-2">
-      <Button
-        icon="pi pi-pencil"
-        className="p-button-sm p-button-text"
-        style={{ color: '#003399' }}
-        onClick={() => handleEdit(rowData)}
-        tooltip="Editar"
-        tooltipOptions={{ position: 'top' }}
-      />
-      <Button
-        icon="pi pi-trash"
-        className="p-button-sm p-button-text p-button-danger"
-        onClick={() => handleDelete(rowData)}
-        tooltip="Excluir"
-        tooltipOptions={{ position: 'top' }}
-      />
-    </div>
-  );
+  const actionTemplate = (rowData: ICategory) => {
+    if (!isAdmin) return null;
+    return (
+      <div className="flex gap-2">
+        <Button
+          icon="pi pi-pencil"
+          className="p-button-sm p-button-text"
+          style={{ color: '#003399' }}
+          onClick={() => handleEdit(rowData)}
+          tooltip="Editar"
+          tooltipOptions={{ position: 'top' }}
+        />
+        <Button
+          icon="pi pi-trash"
+          className="p-button-sm p-button-text p-button-danger"
+          onClick={() => handleDelete(rowData)}
+          tooltip="Excluir"
+          tooltipOptions={{ position: 'top' }}
+        />
+      </div>
+    );
+  };
 
   return (
     <>
@@ -121,12 +126,14 @@ export const AdminCategoryListPage = () => {
               style={{ paddingLeft: '2.5rem' }}
             />
           </span>
-          <Button
-            label="Nova Categoria"
-            icon="pi pi-plus"
-            style={{ backgroundColor: '#003399', borderColor: '#003399' }}
-            onClick={() => navigate('/admin/categories/new')}
-          />
+          {isAdmin && (
+            <Button
+              label="Nova Categoria"
+              icon="pi pi-plus"
+              style={{ backgroundColor: '#003399', borderColor: '#003399' }}
+              onClick={() => navigate('/admin/categories/new')}
+            />
+          )}
         </div>
       </div>
 
@@ -140,7 +147,9 @@ export const AdminCategoryListPage = () => {
         >
           <Column field="id" header="ID" sortable style={{ width: '10%' }} />
           <Column field="name" header="Nome" sortable />
-          <Column body={actionTemplate} header="Ações" style={{ width: '10%' }} />
+          {isAdmin && (
+            <Column body={actionTemplate} header="Ações" style={{ width: '10%' }} />
+          )}
         </DataTable>
       </div>
     </>

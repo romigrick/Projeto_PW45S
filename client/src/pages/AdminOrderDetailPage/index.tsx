@@ -59,7 +59,8 @@ export const AdminOrderDetailPage = () => {
   const toast = useRef<Toast>(null);
   const fileUploadRef = useRef<any>(null);
   const transportFileRef = useRef<any>(null);
-  const { isAdmin } = useAuth();
+  const { isAdmin, isOperator } = useAuth();
+  const canManage = isAdmin || isOperator;
 
   const [order, setOrder] = useState<IOrder | null>(null);
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
@@ -301,7 +302,7 @@ export const AdminOrderDetailPage = () => {
             )}
           </div>
 
-          {/* Attachments — upload visível só para admin */}
+          {/* Attachments — upload visível para admin e operador */}
           <div className="surface-card shadow-2 border-round p-4 mb-4">
             <h3 className="mt-0 mb-3 text-800 font-semibold">Anexos</h3>
 
@@ -318,7 +319,7 @@ export const AdminOrderDetailPage = () => {
               <p className="text-500 text-sm">Nenhum anexo.</p>
             )}
 
-            {isAdmin && (
+            {canManage && (
               <div className="flex align-items-center gap-2 mt-3">
                 <FileUpload
                   ref={fileUploadRef}
@@ -354,10 +355,10 @@ export const AdminOrderDetailPage = () => {
         <div>
           <div className="surface-card shadow-2 border-round p-4 mb-4">
             <h3 className="mt-0 mb-3 text-800 font-semibold">
-              {isAdmin ? 'Alterar Status' : 'Status do Pedido'}
+              {canManage ? 'Alterar Status' : 'Status do Pedido'}
             </h3>
 
-            {isAdmin ? (
+            {canManage ? (
               <>
                 <Dropdown
                   value={selectedStatus}
@@ -410,7 +411,7 @@ export const AdminOrderDetailPage = () => {
               <Message
                 severity="info"
                 className="w-full"
-                text="Você tem acesso somente de visualização. Apenas administradores podem alterar o status."
+                text="Você tem acesso somente de visualização. Apenas administradores e operadores podem alterar o status."
               />
             )}
           </div>

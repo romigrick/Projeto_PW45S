@@ -172,7 +172,7 @@ const OrdersPage = () => {
                 options={categories}
                 onChange={(e) => setSelectedCategory(e.value)}
                 placeholder="Categoria"
-                showClear
+                showclear = "true"
                 className="filter-dropdown"
                 panelClassName="filter-panel"
               />
@@ -183,7 +183,7 @@ const OrdersPage = () => {
                 showIcon
                 dateFormat="dd/mm/yy"
                 className="filter-calendar"
-                showClear
+                showclear = "true"
               />
               <span className="orders-count-desktop">
                 | &nbsp; {filteredOrders.length} compras
